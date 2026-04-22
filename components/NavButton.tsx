@@ -23,7 +23,7 @@ export function NavButton({ icon: Icon, href, label }: Props) {
       asChild
       variant={isActive ? "default" : "ghost"}
       size="sm"
-      className={cn("gap-2", isActive && "bg-blue-600 hover:bg-blue-700")}
+      className={cn("gap-2 text-black", isActive && "bg-blue-600 hover:bg-blue-700 text-white")}
     >
       <Link href={href}>
         <Icon className="h-4 w-4" />

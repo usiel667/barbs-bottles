@@ -1,3 +1,4 @@
+import React from "react";
 import { Header } from "@/components/Header";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
