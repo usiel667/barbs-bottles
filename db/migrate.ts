@@ -1,3 +1,5 @@
+import { config } from "dotenv";
+config({ path: ".env.local" });
 import { migrate } from "drizzle-orm/neon-http/migrator";
 import { db } from "./index";
 
