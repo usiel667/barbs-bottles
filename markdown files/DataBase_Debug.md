@@ -184,3 +184,33 @@ The root cause is:
 **Next.js loads `.env.local` for the application, but `tsx ./db/migrate.ts` does not automatically load it.**
 
 Because of that, the migration script starts without `DATABASE_URL`, and the Neon client throws before any database connection is attempted.
+
+# Solution
+
+- I added these lines of code to the index.ts file
+
+```ts
+import { config } from "dotenv";
+
+config({ path: ".env.local})
+```
+
+- I then ran
+
+```bash
+npm run db:migrate
+```
+
+**It ran perfectly!**
+
+I also removed this line from `db/migrate.ts` and `drizzle.config.ts`
+```ts
+import "dotenv/config";
+```
+from `db/migrate.ts` and `drizzle.config.ts` and everything still works perfectly.
+
+It did however give me this comment:
+
+tip: prvent committing .env to code: https://dotenvx.com/precommit
+
+Look into what exactly this means 
