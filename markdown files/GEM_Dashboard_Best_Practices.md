@@ -93,3 +93,14 @@ export default async function HomePage() {
 - [x] **Input Validation**: Use Zod to validate any user-provided filters or parameters.
 - [x] **Null Safety**: Always provide default values (e.g., `?? 0`) for aggregate queries.
 - [x] **Auth Check**: Verify session permissions before executing sensitive queries.
+
+
+
+# **MY NOTES:**
+Lets build a query layer `Create a Data Access Layer` 
+
+
+
+## TODO'S:
+- [ ] Step 1: Create a Data Access Layer
+- [ ] Step 2: Simplified UI Component
