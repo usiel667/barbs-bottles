@@ -82,7 +82,7 @@ export default async function CustomersPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold text-sm flex-shrink-0">
-                          {customer.firstName[0]}{customer.lastName[0]}
+                          {customer.firstName[0] ?? ""}{customer.lastName[0] ?? ""}
                         </div>
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white">
@@ -163,7 +163,7 @@ export default async function CustomersPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold">
-                      {customer.firstName[0]}{customer.lastName[0]}
+                      {customer.firstName[0] ?? ""}{customer.lastName[0] ?? ""}
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">
