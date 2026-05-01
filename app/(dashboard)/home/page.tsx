@@ -1,31 +1,17 @@
 import { Package, Users, ShoppingCart, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { db } from "@/db";
-import { orders, customers, products } from "@/db/schema";
-import { count, sum } from "drizzle-orm";
-
+import { getDashboardStats } from "@/lib/queries/dashboard";
 
 
 
 export default async function HomePage() {
-  const [
-    [{ totalOrders }],
-    [{ totalCustomers }],
-    [{ totalProducts }],
-    [{ totalRevenue }]
-  ] =
-    await Promise.all([
-      db.select({ totalOrders: count() }).from(orders),
-      db.select({ totalCustomers: count() }).from(customers),
-      db.select({ totalProducts: count() }).from(products),
-      db.select({ totalRevenue: sum(orders.totalPrice) }).from(orders),
-    ]);
+  const stats = await getDashboardStats();
 
   const formattedRevenue = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-  }).format(Number(totalRevenue ?? 0))
+  }).format(Number(stats.totalRevenue))
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -48,7 +34,7 @@ export default async function HomePage() {
             </div>
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Total Orders</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalOrders}</p >
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalOrders}</p>
             </div>
           </div>
         </div>
@@ -60,7 +46,7 @@ export default async function HomePage() {
             </div>
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Customers</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalCustomers}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalCustomers}</p>
             </div>
           </div>
         </div>
@@ -72,7 +58,7 @@ export default async function HomePage() {
             </div>
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Products</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalProducts}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalProducts}</p>
             </div>
           </div>
         </div>

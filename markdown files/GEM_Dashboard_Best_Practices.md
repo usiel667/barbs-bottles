@@ -102,5 +102,74 @@ Lets build a query layer `Create a Data Access Layer`
 
 
 ## TODO'S:
-- [ ] Step 1: Create a Data Access Layer
-- [ ] Step 2: Simplified UI Component
+- [x] Step 1: Create a Data Access Layer
+- [x] Step 2: Simplified UI Component
+
+---
+
+## Fixes Applied to `app/(dashboard)/home/page.tsx` — 2026-04-30
+
+After implementing the DAL pattern, the following bugs were found and fixed in `home/page.tsx`:
+
+### 1. Removed Unused Imports
+**Problem:** The file still imported `db`, `orders`, `customers`, `products`, `count`, and `sum` directly — left over from before the DAL was extracted. These were dead imports since all data now comes from `getDashboardStats()`.
+
+**Before:**
+```ts
+import { db } from "@/db";
+import { orders, customers, products } from "@/db/schema";
+import { count, sum } from "drizzle-orm";
+import { getDashboardStats } from "@/lib/queries/dashboard";
+```
+**After:**
+```ts
+import { getDashboardStats } from "@/lib/queries/dashboard";
+```
+
+---
+
+### 2. Fixed Malformed JSX Closing Tag
+**Problem:** The Total Orders `<p>` tag had a space before the closing `>`, making it invalid JSX — `</p >`.
+
+**Before:**
+```tsx
+<p className="text-2xl font-bold text-gray-900 dark:text-white">{totalOrders}</p >
+```
+**After:**
+```tsx
+<p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalOrders}</p>
+```
+
+---
+
+### 3. Fixed Undefined Variables
+**Problem:** The template referenced `{totalOrders}`, `{totalCustomers}`, and `{totalProducts}` as bare variables, but they were never defined. The data lives on the `stats` object returned by `getDashboardStats()`.
+
+**Before:**
+```tsx
+<p ...>{totalOrders}</p>
+<p ...>{totalCustomers}</p>
+<p ...>{totalProducts}</p>
+```
+**After:**
+```tsx
+<p ...>{stats.totalOrders}</p>
+<p ...>{stats.totalCustomers}</p>
+<p ...>{stats.totalProducts}</p>
+```
+
+---
+
+### 4. Fixed Revenue Type Mismatch
+**Problem:** Drizzle's `sum()` returns `string | null`, so `stats.totalRevenue` was typed as `string | number`. `Intl.NumberFormat.format()` expects a `number`, causing a TypeScript error.
+
+**Before:**
+```ts
+}).format(stats.totalRevenue)
+```
+**After:**
+```ts
+}).format(Number(stats.totalRevenue))
+```
+
+> **Note:** `Number()` coercion is fine for display formatting. For transactional logic, use `big.js` or work in integer cents — see Best Practice #3 above.
