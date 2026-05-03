@@ -19,3 +19,9 @@ export const selectCustomerSchema = createSelectSchema(customers);
 export type InsertCustomerType = z.infer<typeof insertCustomerSchema>;
 export type SelectCustomerType = z.infer<typeof selectCustomerSchema>;
 
+export const updateCustomerSchema = insertCustomerSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type UpdateCustomerType = z.infer<typeof updateCustomerSchema>;

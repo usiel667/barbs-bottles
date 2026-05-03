@@ -219,18 +219,16 @@ import { createCustomer, updateCustomer } from "@/app/(dashboard)/customers/acti
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { SelectCustomerType } from "@/zod-schema/customer";
+import { StatesArray } from "@/constants/StatesArray";
+// CHANGED: import shared StatesArray instead of defining US_STATES locally —
+// StatesArray already exists in constants/ and includes full state names for display
 
 type FormState = {
   errors?: Record<string, string[]>;
 } | null;
 
-const US_STATES = [
-  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
-  "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
-  "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
-  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
-  "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY",
-];
+// REMOVED: local US_STATES array — replaced by StatesArray from @/constants/StatesArray
+// which provides { id, description } objects so dropdowns show full state names
 
 function FieldError({ errors }: { errors?: string[] }) {
   if (!errors?.length) return null;
@@ -394,8 +392,10 @@ export function CustomerForm({ customer }: Props) {
                     className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select state</option>
-                    {US_STATES.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                    {/* CHANGED: use StatesArray (id + description) so the option label shows
+                        the full state name (e.g. "California") instead of just the abbreviation */}
+                    {StatesArray.map((s) => (
+                      <option key={s.id} value={s.id}>{s.description}</option>
                     ))}
                   </select>
                   <FieldError errors={state?.errors?.state} />
@@ -705,3 +705,76 @@ export default async function CustomersPage() {
 | 4 | LOW | `insertCustomerSchema` reused for updates | `updateCustomerSchema` in `zod-schema/customer.ts` and `actions.ts` (Steps 1 & 2) |
 
 All four issues from the review are applied. The PR can be closed — write this code on your own branch instead.
+
+
+# Design and Logic Issues
+
+## Issue 1 — Nav text, mode icon, and logout icon are black in dark mode (inactive items only)
+
+**Files to change:**
+
+- `components/NavButton.tsx` — line 26
+  - Change `text-black` to `text-black dark:text-white` inside the `cn(...)` call
+
+- `components/ModeToggle.tsx` — line 17
+  - Add `dark:text-white` to the existing `className="relative"` → `className="relative dark:text-white"`
+
+- `components/Header.tsx` — line 44
+  - The `<Button>` wrapping `<LogOut>` has no className. Add `className="dark:text-white"`
+
+---
+
+## Issue 2 — Edit button is black in dark mode and missing blue outline
+
+**File to change:** `app/(dashboard)/customers/page.tsx` — lines 144 and 176 (there are two Edit buttons: one for desktop table, one for mobile card list)
+
+- Change `variant="ghost"` to `variant="outline"` on both buttons
+- Add `className="dark:text-white"` to both buttons
+
+---
+
+## Issue 3 — Quick action buttons are black instead of blue
+
+**File to change:** `app/(dashboard)/home/page.tsx` — lines 85, 88, and 91
+
+- Change `variant="outline"` to `variant="default"` on all three buttons
+- This gives them the blue background with white text to match the rest of the app
+
+---
+
+## Issue 4 — Outline button text stays white on hover in dark mode (unreadable)
+
+**Why it happens:** The shadcn `outline` variant sets `hover:bg-accent` which resolves to a light gray in both light and dark mode, but the text color never switches — in dark mode the text is already white, so it becomes invisible against the light gray hover background.
+
+**File to change:** `components/NavButton.tsx` — line 26
+
+  ```tsx
+  // Before
+  className={cn("gap-2 text-black dark:text-white", isActive && "bg-blue-600 hover:bg-blue-700 text-white")}
+
+  // After
+  className={cn("gap-2 text-black dark:text-white dark:hover:text-gray-900", isActive && "bg-blue-600 hover:bg-blue-700 text-white")}
+  ```
+
+**Why:** Inactive nav buttons are white in dark mode (`dark:text-white`), but on hover the shadcn default applies a light gray background (`hover:bg-accent`). Without `dark:hover:text-gray-900` the text stays white and becomes invisible against that background.
+
+**The rule:** Whenever you use `dark:text-white` on a button that also has a light hover background, always pair it with `dark:hover:text-gray-900` so the text stays readable on hover.
+
+
+## Issue 5 — Phone number rejects `111-111-1111` format and fails silently
+
+**What happens:** Submitting the form with a phone number like `111-111-1111` reloads the page, clears all fields, shows "Invalid phone number format" under the phone field, and nothing is saved to the database. The form only accepts E.164-style digits (e.g. `11234567890`).
+
+**Why it happens:** The Zod regex `/^\+?[1-9]\d{1,14}$/` requires digits only — dashes are not matched.
+
+**File to change:** `zod-schema/customer.ts` — line 13
+
+```ts
+// Before
+phone: (schema) => schema.regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number format"),
+
+// After — accepts both 11234567890 and 111-111-1111
+phone: (schema) => schema.regex(/^(\+?[1-9]\d{1,14}|\d{3}-\d{3}-\d{4})$/, "Invalid phone number format"),
+```
+
+**Why:** The updated regex uses an alternation — the left side keeps the original E.164 rule, the right side (`\d{3}-\d{3}-\d{4}`) matches the common US dashed format. Both formats will now pass validation and save to the database.
