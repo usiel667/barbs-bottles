@@ -737,8 +737,15 @@ All four issues from the review are applied. The PR can be closed — write this
 
 **File to change:** `app/(dashboard)/home/page.tsx` — lines 85, 88, and 91
 
-- Change `variant="outline"` to `variant="default"` on all three buttons
-- This gives them the blue background with white text to match the rest of the app
+  ```tsx
+  // Before
+  <Button asChild variant="outline">
+
+  // After
+  <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
+  ```
+
+**Why not `variant="default"`:** This project's `--primary` CSS variable is `#171717` (near-black) in light mode and `#ededed` (light gray) in dark mode, so `variant="default"` will never produce blue. The explicit `bg-blue-600` className is the correct approach and matches how other blue buttons (e.g. the Add Customer button) are styled throughout the app.
 
 ---
 

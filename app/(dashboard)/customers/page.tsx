@@ -123,8 +123,8 @@ export default async function CustomersPage() {
                     {/* Status badge */}
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${customer.active
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                          : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                         }`}>
                         {customer.active ? "Active" : "Inactive"}
                       </span>
@@ -141,7 +141,7 @@ export default async function CustomersPage() {
 
                     {/* Edit action */}
                     <td className="px-6 py-4 text-right">
-                      <Button asChild variant="ghost" size="sm">
+                      <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white" size="sm">
                         <Link href={`/customers/form?id=${customer.id}`}>Edit</Link>
                       </Button>
                     </td>
@@ -166,8 +166,8 @@ export default async function CustomersPage() {
                         {customer.firstName} {customer.lastName}
                       </p>
                       <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${customer.active
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                          : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                         }`}>
                         {customer.active ? "Active" : "Inactive"}
                       </span>

@@ -51,7 +51,7 @@ export function CustomerForm({ customer }: Props) {
               : "Fill in the details to add a new customer"}
           </p>
         </div>
-        <Button asChild variant="outline" className="dark:text-gray-900 dark:hover:text-gray-900">
+        <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
           <Link href="/customers">Back to Customers</Link>
         </Button>
       </div>

@@ -33,7 +33,7 @@ export default async function HomePage() {
               <ShoppingCart className="h-6 w-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Orders</p>
+              <p className="text-sm font-bold text-gray-600 dark:text-gray-400">Total Orders</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalOrders}</p>
             </div>
           </div>
@@ -45,7 +45,7 @@ export default async function HomePage() {
               <Users className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Customers</p>
+              <p className="text-sm font-bold text-gray-600 dark:text-gray-400">Customers</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalCustomers}</p>
             </div>
           </div>
@@ -57,7 +57,7 @@ export default async function HomePage() {
               <Package className="h-6 w-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Products</p>
+              <p className="text-sm font-bold text-gray-600 dark:text-gray-400">Products</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalProducts}</p>
             </div>
           </div>
@@ -69,7 +69,7 @@ export default async function HomePage() {
               <TrendingUp className="h-6 w-6 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Revenue</p>
+              <p className="text-sm font-bold text-gray-600 dark:text-gray-400">Revenue</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{formattedRevenue}</p>
             </div>
           </div>
@@ -82,13 +82,13 @@ export default async function HomePage() {
           Quick Actions
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
-          <Button asChild variant="outline">
+          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
             <Link href="/customers/form">Add New Customer</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
             <Link href="/products/form">Create Product</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
             <Link href="/orders/form">New Order</Link>
           </Button>
         </div>
