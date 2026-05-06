@@ -11,7 +11,11 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix Edit button dark mode + add blue outline → `app/(dashboard)/customers/page.tsx` lines 144 & 176 — see [[Customer_Pages_Coding_Guide]] ✅ 2026-05-05
 - [x] Fix Quick Action buttons black instead of blue → `app/(dashboard)/home/page.tsx` lines 85, 88, 91 — see [[Customer_Pages_Coding_Guide]] ✅ 2026-05-05
 - [x] Add `app/(dashboard)/error.tsx` Sentry error boundary — see [[Sentry_Setup]] ✅ 2026-05-05
-
+- [ ] Fix Edit buttons on products page — change to `bg-blue-600 hover:bg-blue-700 text-white` (lines 95, 120) — see [[UI_Issues_Design]]
+- [ ] Fix Add Product button text — add `text-white` (lines 25, 36) — see [[UI_Issues_Design]]
+- [ ] Fix typo in `products/actions.ts:25` — `desingTemplates` → `designTemplate` (data silently never saves) — see [[Bug_Fixes]]
+- [ ] Add try/catch to `createProduct` DB insert for constraint errors — see [[Bug_Fixes]]
+- [ ] Fix typo "Unathorized" in `customers/actions.ts:38` — see [[Bug_Fixes]]
 ### Before Production
 - [ ] Lower `tracesSampleRate` from `1` to `0.1` in all three Sentry config files — see [[Sentry_Setup]]
 - [ ] Review `sendDefaultPii: true` for GDPR compliance — see [[Sentry_Setup]]
@@ -89,6 +93,14 @@ Reference docs for tools and services wired into the project.
 
 - [[Sentry_Setup]] — What is configured, what is missing, and pre-production checklist
 - [[GitNexus_Integration]] — GitNexus workflow: when to run analyze, how to use with AI tools
+- [[Obsidian_Claude_Button]] — Weekend project: one-click button in Obsidian that auto-finds and fills in UI issue fixes
+
+---
+
+## UI Issues & Design
+Visual bugs spotted in the app and design changes to make or remove.
+
+- [[UI_Issues_Design]] — Running log of UI issues and design changes (add/remove/restyle)
 
 ---
 
@@ -96,6 +108,7 @@ Reference docs for tools and services wired into the project.
 PR and code reviews.
 
 - [[PR1_Customer_Pages_Review]] — Review of Copilot PR #1 (customers list and form pages)
+- [[App_Audit_2026-05-05]] — Security & correctness audit of products and customers actions (2026-05-05)
 
 ---
 

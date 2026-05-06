@@ -13,11 +13,13 @@ Quick-navigation index of every major constant, schema, type, function, and conf
 - [Zod Schemas & Types](#zod-schemas--types)
 - [Utility Functions](#utility-functions)
 - [Server Actions](#server-actions)
+- [Pages & Components](#pages--components)
 - [Query Functions](#query-functions)
 - [Database Instance](#database-instance)
 - [Middleware / Auth Config](#middleware--auth-config)
 - [Environment Variables](#environment-variables)
 - [Scripts](#scripts)
+- [Design Constants](#design-constants)
 
 ---
 
@@ -108,6 +110,9 @@ Each constant is an array of `{ id: string, description: string }` objects.
 | `InsertProductType` | Type | Inferred from `insertProductSchema` |
 | `selectProductSchema` | Zod schema | For querying product records |
 | `SelectProductType` | Type | Inferred from `selectProductSchema` |
+| `updateProductSchema` | Zod schema | `insertProductSchema` minus createdAt/updatedAt |
+| `updateProductType` | Type | Inferred from `updateProductSchema` |
+| `productSchema` | Zod schema | `insertProductSchema.partial()` — all fields optional |
 
 ---
 
@@ -132,10 +137,46 @@ Each constant is an array of `{ id: string, description: string }` objects.
 | `createCustomer` | `(_prevState: FormState, formData: FormData)` | Creates a customer; validates auth, dedupes email |
 | `updateCustomer` | `(id: number, _prevState: FormState, formData: FormData)` | Updates a customer; validates auth, dedupes email |
 
+> `app/(dashboard)/products/actions.ts`
+
+| Function | Parameters | Description |
+|----------|-----------|-------------|
+| `createProduct` | `(_prevState: FormState, formData: FormData)` | Creates a product; validates auth, parses FormData via `parseFormData()` |
+| `updateProduct` | `(id: number, _prevState: FormState, formData: FormData)` | Updates a product by id; validates auth |
+
 **Shared type:**
 
 ```ts
 type FormState = { errors?: Record<string, string[]> } | null
+```
+
+---
+
+## Pages & Components
+
+> `app/(dashboard)/products/`
+
+| File | Kind | Description |
+|------|------|-------------|
+| `page.tsx` | Server Component | Products list — desktop table + mobile cards, links to form |
+| `actions.ts` | Server Actions | `createProduct`, `updateProduct` |
+| `form/page.tsx` | Server Component | Reads `?id` param, fetches product if editing, renders `ProductForm` |
+| `form/ProductForm.tsx` | Client Component | Add/edit form; uses `useActionState`, drives from `BottleSizes`, `BottleMaterials`, `AvailableColors` |
+
+> `app/(dashboard)/customers/`
+
+| File | Kind | Description |
+|------|------|-------------|
+| `page.tsx` | Server Component | Customers list — desktop table + mobile cards |
+| `actions.ts` | Server Actions | `createCustomer`, `updateCustomer` |
+| `form/page.tsx` | Server Component | Reads `?id` param, fetches customer if editing, renders `CustomerForm` |
+| `form/CustomerForm.tsx` | Client Component | Add/edit form; uses `useActionState` |
+
+**Shared helper (both form components):**
+
+```ts
+function FieldError({ errors }: { errors?: string[] })
+// Renders the first validation error string in red below an input
 ```
 
 ---
@@ -196,3 +237,9 @@ Auth route: `app/api/auth/[kindeAuth]/route.ts`
 | `db:seed` | `tsx ./db/seed.ts` |
 | `db:push` | `drizzle-kit push` |
 | `db:studio` | `drizzle-kit studio` |
+
+---
+
+## Design Constants
+
+Tailwind class standards for buttons, text, badges, and containers are maintained in [[UI_Issues_Design]] under the **Design Constants** section. Check there before styling any new page element.

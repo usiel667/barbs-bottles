@@ -31,4 +31,79 @@ After both fixes, visiting `/` or `/home` unauthenticated will correctly land on
 
 ---
 
-Nots: Had issues with the redirect after login in.  that is now fixed.
+Notes: Had issues with the redirect after login in.  that is now fixed.
+
+---
+
+## Fix 2 — `updateProductSchema` export error (stale build cache)
+
+**Problem:** Error: `Export updateProductSchema doesn't exist in target module`. The export is correctly defined in `zod-schema/product.ts:21` — the error is a stale Turbopack dev cache.
+
+**Fix — clear the build cache and restart:**
+
+```bash
+rm -rf .next
+npm run dev
+```
+
+---
+
+## Fix 3 — Design template field never saved to DB (typo)
+
+**File:** `app/(dashboard)/products/actions.ts:25`
+
+**Problem:** The `parseFormData` function has a double typo — the object key is `desingTemplates` (misspelled + plural) but the schema field is `designTemplate`. This means the design template value is always `undefined` when going to the database.
+
+**Current code (broken):**
+```ts
+desingTemplates: formData.get("desingTemplate") || undefined,
+```
+
+**Fix:**
+```ts
+designTemplate: formData.get("designTemplate") || undefined,
+```
+
+Note: also check the form input's `name` attribute — it should be `designTemplate` to match.
+
+---
+
+## Fix 4 — `createProduct` crashes on DB constraint errors (no try/catch)
+
+**File:** `app/(dashboard)/products/actions.ts:47`
+
+**Problem:** `createProduct` has no error handling around `db.insert()`. If a database constraint is violated, the app throws an unhandled 500 instead of returning a friendly error. The `createCustomer` action handles this correctly.
+
+**Current code (broken):**
+```ts
+await db.insert(products).values(parsed.data);
+```
+
+**Fix — wrap in a try/catch:**
+```ts
+try {
+  await db.insert(products).values(parsed.data);
+} catch (e) {
+  if (
+    e instanceof Error &&
+    "code" in e &&
+    (e as { code: string }).code === "23505"
+  ) {
+    return { errors: { name: ["A product with this name already exists"] } };
+  }
+  throw e;
+}
+```
+
+---
+
+## Fix 5 — Typo in auth error message
+
+**File:** `app/(dashboard)/customers/actions.ts:38`
+
+**Problem:** `createCustomer` throws `"Unathorized"` (missing the 'u').
+
+**Fix:**
+```ts
+throw new Error("Unauthorized");
+```
