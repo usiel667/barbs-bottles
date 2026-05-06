@@ -30,7 +30,7 @@ Quick-navigation index of every major constant, schema, type, function, and conf
 | Table | Key Fields |
 |-------|-----------|
 | `customers` | id, firstName, lastName, email, phone, address1, address2, city, state, zipCode, notes, active, createdAt, updatedAt |
-| `products` | id, name, description, size, material, basePrice, colors, features, designTemplate, designPreview, designVariations, active, createdAt, updatedAt |
+| `products` | id, name, description, size, material, basePrice, colors, features, designTemplate, designPreview, designVariations, active, stockQuantity *(pending migration)*, createdAt, updatedAt |
 | `orders` | id, customerId, productId, quantity, selectedColor, customDesignText, customLogoUrl, designNotes, designProofUrl, status, totalPrice, estimatedDelivery, assignedTo, createdAt, updatedAt |
 
 **Relations:**

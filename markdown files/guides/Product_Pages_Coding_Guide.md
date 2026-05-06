@@ -624,3 +624,139 @@ export default async function ProductsPage() {
 ## Design and Logic Issues
 
 *(Add issues here as you find them while testing)*
+
+---
+### Checklist
+
+- [ ] `db/schema.ts` — `stockQuantity` column added
+- [ ] `npm run db:generate` — migration file created
+- [ ] `npm run db:migrate` — migration applied to Neon
+- [ ] `actions.ts` — `stockQuantity` in `parseFormData()`
+- [ ] `ProductForm.tsx` — number input added
+- [ ] `products/page.tsx` — Stock column in table + mobile card
+- [ ] Test: create a product, set stock to 5, verify it saves and displays correctly
+- [ ] Test: edit the product, change stock to 10, verify it updates
+---
+## Feature: Add Stock Quantity (Inventory)
+
+Adds a `stockQuantity` column to the products table so you can track how many units are in stock. Touches 4 files + requires a DB migration.
+
+**Files to change in order:**
+1. `db/schema.ts` — add column
+2. Run migration
+3. `app/(dashboard)/products/actions.ts` — parse new field
+4. `app/(dashboard)/products/form/ProductForm.tsx` — add input
+5. `app/(dashboard)/products/page.tsx` — add Stock column
+
+---
+
+### Step 1 — Add column to `db/schema.ts`
+
+Find the `products` table definition and add `stockQuantity` after the `active` field:
+
+```ts
+// Add this line inside the products table, after active:
+stockQuantity: integer("stock_quantity").notNull().default(0),
+```
+
+Full context — the end of your products table should look like this:
+
+```ts
+active: boolean("active").notNull().default(true),
+stockQuantity: integer("stock_quantity").notNull().default(0),  // ← add this
+createdAt: timestamp("created_at").notNull().defaultNow(),
+updatedAt: timestamp("updated_at").notNull().defaultNow(),
+```
+
+---
+
+### Step 2 — Run the migration
+
+Stop the dev server first, then run both commands:
+
+```bash
+npm run db:generate
+npm run db:migrate
+```
+
+> `db:generate` creates the SQL migration file in `db/migrations/`.
+> `db:migrate` applies it to the Neon database.
+> The existing rows will get `stockQuantity = 0` automatically (the default).
+
+**No changes needed to `zod-schema/product.ts`** — drizzle-zod's `createInsertSchema` reads the schema at build time and will pick up the new column automatically.
+
+---
+
+### Step 3 — Update `parseFormData` in `actions.ts`
+
+Add `stockQuantity` to the `parseFormData` function. FormData always gives you strings, so convert to a number:
+
+```ts
+function parseFormData(formData: FormData) {
+  return {
+    name: formData.get("name"),
+    description: formData.get("description") || undefined,
+    size: formData.get("size"),
+    material: formData.get("material"),
+    basePrice: formData.get("basePrice"),
+    colors: JSON.stringify(formData.getAll("colors")),
+    features: formData.get("features") || undefined,
+    designTemplate: formData.get("designTemplate") || undefined,
+    designPreview: formData.get("designPreview") || undefined,
+    designVariations: formData.get("designVariations") || undefined,
+    active: formData.get("active") === "true",
+    stockQuantity: Number(formData.get("stockQuantity") ?? 0),  // ← add this
+  };
+}
+```
+
+---
+
+### Step 4 — Add input to `ProductForm.tsx`
+
+Add this block after the `{/* Base Price */}` section and before `{/* Colors */}`:
+
+```tsx
+{/* Stock Quantity */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    Stock Quantity
+  </label>
+  <input
+    type="number"
+    name="stockQuantity"
+    min="0"
+    step="1"
+    defaultValue={product?.stockQuantity ?? 0}
+    className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+  />
+  <FieldError errors={state?.errors?.stockQuantity} />
+</div>
+```
+
+---
+
+### Step 5 — Add Stock column to `products/page.tsx`
+
+**Desktop table — add the header** (after the Price `<th>`):
+
+```tsx
+<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
+```
+
+**Desktop table — add the cell** (after the Price `<td>`):
+
+```tsx
+<td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+  {product.stockQuantity} units
+</td>
+```
+
+**Mobile card — add stock** (inside the details `<div>` after the price line):
+
+```tsx
+<p>{product.stockQuantity} in stock</p>
+```
+
+---
+

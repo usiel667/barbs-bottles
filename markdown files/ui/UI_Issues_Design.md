@@ -48,9 +48,30 @@ A running log of visual issues spotted in the app and design changes to make or 
 
 ## Design Changes
 
-<!-- Add things to add, remove, or redesign here -->
+<!-- Template — copy and fill in for each change:
 
----
+### [Add | Remove | Change] — Short description
+**Page:** `app/(dashboard)/...`
+**Component:** Which file gets the change
+**What:** Describe exactly what to add, remove, or restyle
+**Where in the UI:** Where on the page it should appear
+**Notes:** Any constraints, related fields, or validation to keep in mind
+
+-->
+
+### Add — Stock quantity field on Products
+**Page:** `app/(dashboard)/products/page.tsx` and `app/(dashboard)/products/form/page.tsx`
+**Component:** `ProductForm.tsx`, `products/page.tsx`
+**What:** A numeric input showing how many units are in stock/inventory. Minimum 0.
+**Where in the UI:** Products form — below Base Price. Products list table — new "Stock" column after Price.
+**Notes:** Field does NOT exist yet — requires a DB migration. Changes needed:
+1. `db/schema.ts` — add `stockQuantity: integer("stock_quantity").notNull().default(0)` to products table
+2. Run `npm run db:generate` then `npm run db:migrate`
+3. `zod-schema/product.ts` — drizzle-zod will pick it up automatically
+4. `products/actions.ts` — add `stockQuantity` to `parseFormData()`
+5. `ProductForm.tsx` — add number input (min 0)
+6. `products/page.tsx` — add Stock column to table and mobile card
+
 
 ## Resolved
 

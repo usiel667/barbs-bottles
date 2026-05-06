@@ -11,6 +11,7 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix Edit button dark mode + add blue outline → `app/(dashboard)/customers/page.tsx` lines 144 & 176 — see [[Customer_Pages_Coding_Guide]] ✅ 2026-05-05
 - [x] Fix Quick Action buttons black instead of blue → `app/(dashboard)/home/page.tsx` lines 85, 88, 91 — see [[Customer_Pages_Coding_Guide]] ✅ 2026-05-05
 - [x] Add `app/(dashboard)/error.tsx` Sentry error boundary — see [[Sentry_Setup]] ✅ 2026-05-05
+- [ ] Add stock quantity to products — DB migration + 4 file changes — see [[Product_Pages_Coding_Guide]]
 - [ ] Fix Edit buttons on products page — change to `bg-blue-600 hover:bg-blue-700 text-white` (lines 95, 120) — see [[UI_Issues_Design]]
 - [ ] Fix Add Product button text — add `text-white` (lines 25, 36) — see [[UI_Issues_Design]]
 - [ ] Fix typo in `products/actions.ts:25` — `desingTemplates` → `designTemplate` (data silently never saves) — see [[Bug_Fixes]]
