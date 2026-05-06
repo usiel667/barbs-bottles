@@ -13,7 +13,15 @@ export const insertProductSchema = createInsertSchema(products, {
 
 export const selectProductSchema = createSelectSchema(products);
 
+export const productSchema = insertProductSchema.partial();
+
 export type InsertProductType = z.infer<typeof insertProductSchema>;
 export type SelectProductType = z.infer<typeof selectProductSchema>;
+
+export const updateProductSchema = insertProductSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+});
+export type updateProductType = z.infer<typeof updateProductSchema>;
 
 

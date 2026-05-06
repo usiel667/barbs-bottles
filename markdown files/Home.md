@@ -7,10 +7,10 @@ A central index for all project documentation. Click any link to open the note d
 ## TODO
 
 ### In Progress
-- [ ] Fix nav text/icons black in dark mode → `components/NavButton.tsx`, `ModeToggle.tsx`, `Header.tsx` — see [[Customer_Pages_Coding_Guide]]
-- [ ] Fix Edit button dark mode + add blue outline → `app/(dashboard)/customers/page.tsx` lines 144 & 176 — see [[Customer_Pages_Coding_Guide]]
-- [ ] Fix Quick Action buttons black instead of blue → `app/(dashboard)/home/page.tsx` lines 85, 88, 91 — see [[Customer_Pages_Coding_Guide]]
-- [ ] Add `app/(dashboard)/error.tsx` Sentry error boundary — see [[Sentry_Setup]]
+- [x] Fix nav text/icons black in dark mode → `components/NavButton.tsx`, `ModeToggle.tsx`, `Header.tsx` — see [[Customer_Pages_Coding_Guide]] ✅ 2026-05-05
+- [x] Fix Edit button dark mode + add blue outline → `app/(dashboard)/customers/page.tsx` lines 144 & 176 — see [[Customer_Pages_Coding_Guide]] ✅ 2026-05-05
+- [x] Fix Quick Action buttons black instead of blue → `app/(dashboard)/home/page.tsx` lines 85, 88, 91 — see [[Customer_Pages_Coding_Guide]] ✅ 2026-05-05
+- [x] Add `app/(dashboard)/error.tsx` Sentry error boundary — see [[Sentry_Setup]] ✅ 2026-05-05
 
 ### Before Production
 - [ ] Lower `tracesSampleRate` from `1` to `0.1` in all three Sentry config files — see [[Sentry_Setup]]
