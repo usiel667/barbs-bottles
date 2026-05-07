@@ -3,7 +3,7 @@
 A running log of visual issues spotted in the app and design changes to make or remove.
 
 ---
-
+  
 ## Open Issues
 
 <!-- Add UI bugs and visual problems here -->

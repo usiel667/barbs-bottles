@@ -22,7 +22,7 @@ export default async function ProductsPage() {
             {allProducts.length} product{allProducts.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <Button asChild variant="default" className="bg-blue-600 hover:bg-blue-700">
+        <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
           <Link href="/products/form">+ Add Product</Link>
         </Button>
       </div>
@@ -83,8 +83,8 @@ export default async function ProductsPage() {
                     {/* Status badge */}
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${product.active
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                          : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                         }`}>
                         {product.active ? "Active" : "Inactive"}
                       </span>
@@ -92,7 +92,7 @@ export default async function ProductsPage() {
 
                     {/* Edit */}
                     <td className="px-6 py-4 text-right">
-                      <Button asChild variant="outline" size="sm" className="dark:text-white">
+                      <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                         <Link href={`/products/form?id=${product.id}`}>Edit</Link>
                       </Button>
                     </td>
@@ -111,8 +111,8 @@ export default async function ProductsPage() {
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">{product.name}</p>
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${product.active
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                      : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                       }`}>
                       {product.active ? "Active" : "Inactive"}
                     </span>

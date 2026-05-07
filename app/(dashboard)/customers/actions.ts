@@ -35,7 +35,7 @@ export async function createCustomer(
   //Auth Check
   const { getUser } = getKindeServerSession();
   const user = await getUser();
-  if (!user) throw new Error("Unathorized");
+  if (!user) throw new Error("Unauthorized");
 
   const raw = parseFormData(formData);
   const parsed = insertCustomerSchema.safeParse(raw);

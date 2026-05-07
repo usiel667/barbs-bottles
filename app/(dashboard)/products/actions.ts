@@ -22,7 +22,7 @@ function parseFormData(formData: FormData) {
     basePrice: formData.get("basePrice"),
     colors: JSON.stringify(formData.getAll("colors")),
     features: formData.get("features") || undefined,
-    desingTemplates: formData.get("desingTemplate") || undefined,
+    designTemplate: formData.get("designTemplate") || undefined,
     designPreview: formData.get("designPreview") || undefined,
     designVariations: formData.get("designVariations") || undefined,
     active: formData.get("active") === "true",
@@ -44,7 +44,18 @@ export async function createProduct(
     return { errors: parsed.error.flatten().fieldErrors };
 
   }
-  await db.insert(products).values(parsed.data);
+  try {
+    await db.insert(products).values(parsed.data);
+  } catch (e) {
+    if (
+      e instanceof Error &&
+      "code" in e &&
+      (e as { code: string }).code === "23505"
+    ) {
+      return { errors: { name: ["A product with this name already exists"] } };
+    }
+    throw e;
+  }
 
   revalidatePath("/products");
   redirect("/products");
