@@ -97,6 +97,25 @@ try {
 
 ---
 
+## Fix 6 — Active toggle always saves as inactive (products)
+
+**File:** `app/(dashboard)/products/actions.ts:28`
+
+**Problem:** `parseFormData` uses `formData.get("active") === "true"`. The form has a hidden input (`value="false"`) placed before the checkbox (`value="true"`) in the DOM. When the checkbox is checked, both values are submitted but `get()` always returns the first — the hidden `"false"` — so the product always saves as inactive regardless of the checkbox state.
+
+**Fix — one line in `parseFormData()`:**
+```ts
+// Before (broken)
+active: formData.get("active") === "true",
+
+// After
+active: formData.getAll("active").includes("true"),
+```
+
+Customers form is not affected — it has no hidden input for `active`.
+
+---
+
 ## Fix 5 — Typo in auth error message
 
 **File:** `app/(dashboard)/customers/actions.ts:38`

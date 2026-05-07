@@ -13,35 +13,21 @@ A running log of visual issues spotted in the app and design changes to make or 
 **Problem:** What looks wrong or broken.
 **Fix:** What needs to change.
 -->
-### [Products Page] — Edit buttons are black
-**Location:** `app/(dashboard)/products/page.tsx` — lines 95 and 120
-**Problem:** Edit buttons use `variant="outline"` which renders black text in light mode.
-**Fix:** Replace both instances with the same blue style used on the customers page.
 
-```tsx
-// Current (lines 95 and 120) — BROKEN
-<Button asChild variant="outline" size="sm" className="dark:text-white">
+### [Products Form] — Active toggle always saves as inactive
+**Location:** `app/(dashboard)/products/form/ProductForm.tsx` — line 205, and `app/(dashboard)/products/actions.ts` — line 28
+**Problem:** The form uses a hidden input (`value="false"`) placed *before* the checkbox (`value="true"`) in the DOM. When the checkbox is checked, both values are submitted — but `formData.get("active")` always returns the **first** one, which is always `"false"`. So the product is always saved as inactive regardless of what the checkbox shows.
+**Fix:** One line change in `actions.ts` — switch from `get()` to `getAll().includes()`:
 
-// Fix
-<Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-```
-
----
-
-### [Products Page] — Add Product button text is black
-**Location:** `app/(dashboard)/products/page.tsx` — lines 25 and 36
-**Problem:** Button has `bg-blue-600` but is missing `text-white`, so the text inherits and shows black.
-**Fix:** Add `text-white` to the className.
-
-```tsx
-// Current (lines 25 and 36) — BROKEN
-<Button asChild variant="default" className="bg-blue-600 hover:bg-blue-700">
+```ts
+// Current (actions.ts line 28) — BROKEN, always returns false
+active: formData.get("active") === "true",
 
 // Fix
-<Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
+active: formData.getAll("active").includes("true"),
 ```
 
-
+> Customers form does NOT have this bug — it uses a plain checkbox with no hidden input.
 
 
 
@@ -75,7 +61,11 @@ A running log of visual issues spotted in the app and design changes to make or 
 
 ## Resolved
 
-<!-- Move items here once fixed, with the date -->
+### ✅ [Products Page] — Edit buttons black → blue *(2026-05-06)*
+Fixed all 4 button instances on `products/page.tsx` to use `bg-blue-600 hover:bg-blue-700 text-white`.
+
+### ✅ [Products Page] — Add Product button text black → white *(2026-05-06)*
+Added `text-white` to both Add Product buttons (top header + empty state) on `products/page.tsx`.
 
 ---
 

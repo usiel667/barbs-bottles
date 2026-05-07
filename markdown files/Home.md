@@ -11,6 +11,7 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix Edit button dark mode + add blue outline → `app/(dashboard)/customers/page.tsx` lines 144 & 176 — see [[Customer_Pages_Coding_Guide]] ✅ 2026-05-05
 - [x] Fix Quick Action buttons black instead of blue → `app/(dashboard)/home/page.tsx` lines 85, 88, 91 — see [[Customer_Pages_Coding_Guide]] ✅ 2026-05-05
 - [x] Add `app/(dashboard)/error.tsx` Sentry error boundary — see [[Sentry_Setup]] ✅ 2026-05-05
+- [x] Fix active toggle always saving as inactive — change `get()` to `getAll().includes()` in `products/actions.ts:28` — see [[Bug_Fixes]] ✅ 2026-05-06
 - [ ] Add stock quantity to products — DB migration + 4 file changes — see [[Product_Pages_Coding_Guide]]
 - [x] Fix Edit buttons on products page — change to `bg-blue-600 hover:bg-blue-700 text-white` (lines 95, 120) — see [[UI_Issues_Design]] ✅ 2026-05-06
 - [x] Fix Add Product button text — add `text-white` (lines 25, 36) — see [[UI_Issues_Design]] ✅ 2026-05-06
@@ -45,15 +46,20 @@ flowchart TD
         HOME["/home\nhome/page.tsx"]
         CUSTOMERS["/customers\ncustomers/page.tsx"]
         CUST_FORM["/customers/form\nform/page.tsx + CustomerForm.tsx"]
-        PRODUCTS["/products\n(planned)"]
+        PRODUCTS["/products\nproducts/page.tsx"]
+        PROD_FORM["/products/form\nform/page.tsx + ProductForm.tsx"]
         ORDERS["/orders\n(planned)"]
     end
 
     CUSTOMERS -->|?id param| CUST_FORM
-    CUST_FORM -->|createCustomer / updateCustomer| ACTIONS["actions.ts\nServer Actions"]
-    ACTIONS -->|insert / update| DB["Neon\nPostgres Database"]
+    CUST_FORM -->|createCustomer / updateCustomer| CUST_ACTIONS["customers/actions.ts"]
+    CUST_ACTIONS -->|insert / update| DB["Neon\nPostgres Database"]
+    PRODUCTS -->|?id param| PROD_FORM
+    PROD_FORM -->|createProduct / updateProduct| PROD_ACTIONS["products/actions.ts"]
+    PROD_ACTIONS -->|insert / update| DB
     HOME -->|getDashboardStats| DB
     CUSTOMERS -->|db.select| DB
+    PRODUCTS -->|db.select| DB
 ```
 
 ---

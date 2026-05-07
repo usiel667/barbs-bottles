@@ -25,7 +25,7 @@ function parseFormData(formData: FormData) {
     designTemplate: formData.get("designTemplate") || undefined,
     designPreview: formData.get("designPreview") || undefined,
     designVariations: formData.get("designVariations") || undefined,
-    active: formData.get("active") === "true",
+    active: formData.getAll("active").includes("true"),
   };
 }
 
