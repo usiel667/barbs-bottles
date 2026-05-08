@@ -14,20 +14,6 @@ A running log of visual issues spotted in the app and design changes to make or 
 **Fix:** What needs to change.
 -->
 
-### [Products Form] — Active toggle always saves as inactive
-**Location:** `app/(dashboard)/products/form/ProductForm.tsx` — line 205, and `app/(dashboard)/products/actions.ts` — line 28
-**Problem:** The form uses a hidden input (`value="false"`) placed *before* the checkbox (`value="true"`) in the DOM. When the checkbox is checked, both values are submitted — but `formData.get("active")` always returns the **first** one, which is always `"false"`. So the product is always saved as inactive regardless of what the checkbox shows.
-**Fix:** One line change in `actions.ts` — switch from `get()` to `getAll().includes()`:
-
-```ts
-// Current (actions.ts line 28) — BROKEN, always returns false
-active: formData.get("active") === "true",
-
-// Fix
-active: formData.getAll("active").includes("true"),
-```
-
-> Customers form does NOT have this bug — it uses a plain checkbox with no hidden input.
 
 
 
@@ -61,6 +47,9 @@ active: formData.getAll("active").includes("true"),
 
 ## Resolved
 
+### ✅ [Products Form] — Active toggle always saved as inactive *(2026-05-06)*
+Changed `formData.get("active") === "true"` to `formData.getAll("active").includes("true")` in `products/actions.ts:28`.
+
 ### ✅ [Products Page] — Edit buttons black → blue *(2026-05-06)*
 Fixed all 4 button instances on `products/page.tsx` to use `bg-blue-600 hover:bg-blue-700 text-white`.
 
@@ -82,12 +71,14 @@ Rules that every page must follow for visual consistency. When building or revie
 | Primary action (Add, Save, Submit) | `bg-blue-600 hover:bg-blue-700 text-white` | Top of page CTA, empty-state CTA |
 | Edit | `bg-blue-600 hover:bg-blue-700 text-white` + `size="sm"` | Table rows and mobile cards |
 | Destructive (Delete) | `bg-red-600 hover:bg-red-700 text-white` + `size="sm"` | Table rows and mobile cards |
+| Cancel / Back | `variant="outline" className="dark:text-white"` | Secondary action next to a primary button |
 | Ghost / secondary | `variant="ghost"` | Low-priority inline actions |
 
 **Rules:**
-- All Edit buttons must be blue (`bg-blue-600`) with white text (`text-white`) — never outline or default variant alone
+- All Edit buttons must be blue (`bg-blue-600`) with white text (`text-white`) — never `variant="outline"` or `variant="default"` alone
 - Never rely on `variant="default"` for color — always set `bg-` and `text-` explicitly to avoid theme bleed
 - Always pair `bg-blue-600` with `hover:bg-blue-700` and `text-white`
+- Cancel/Back buttons use `variant="outline"` — they are intentionally secondary and do not get the blue treatment
 
 ---
 

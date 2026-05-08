@@ -97,10 +97,14 @@ Each constant is an array of `{ id: string, description: string }` objects.
 
 | Name | Kind | Notes |
 |------|------|-------|
-| `insertOrderSchema` | Zod schema | id (number \| `"(New)"`), quantity (min 1), selectedColor (min 1), totalPrice (parsed > 0) |
-| `InsertOrderType` | Type | Inferred from `insertOrderSchema` |
+| `insertOrderSchema` | Zod schema | quantity (min 1), selectedColor (min 1), totalPrice (parsed > 0) |
 | `selectOrderSchema` | Zod schema | For querying order records |
+| `updateOrderSchema` | Zod schema | `insertOrderSchema` minus id/createdAt/updatedAt |
+| `InsertOrderType` | Type | Inferred from `insertOrderSchema` |
 | `SelectOrderType` | Type | Inferred from `selectOrderSchema` |
+| `UpdateOrderType` | Type | Inferred from `updateOrderSchema` |
+
+> ⚠️ `zod-schema/order.ts` has bugs — fix before using. See Step 1 of [[Orders_Pages_Coding_Guide]].
 
 > `zod-schema/product.ts`
 
@@ -137,6 +141,13 @@ Each constant is an array of `{ id: string, description: string }` objects.
 | `createCustomer` | `(_prevState: FormState, formData: FormData)` | Creates a customer; validates auth, dedupes email |
 | `updateCustomer` | `(id: number, _prevState: FormState, formData: FormData)` | Updates a customer; validates auth, dedupes email |
 
+> `app/(dashboard)/orders/actions.ts` *(not yet built)*
+
+| Function | Parameters | Description |
+|----------|-----------|-------------|
+| `createOrder` | `(_prevState: FormState, formData: FormData)` | Creates an order; validates auth, parses FK ids and date |
+| `updateOrder` | `(id: number, _prevState: FormState, formData: FormData)` | Updates an order by id; validates auth |
+
 > `app/(dashboard)/products/actions.ts`
 
 | Function | Parameters | Description |
@@ -171,6 +182,15 @@ type FormState = { errors?: Record<string, string[]> } | null
 | `actions.ts` | Server Actions | `createCustomer`, `updateCustomer` |
 | `form/page.tsx` | Server Component | Reads `?id` param, fetches customer if editing, renders `CustomerForm` |
 | `form/CustomerForm.tsx` | Client Component | Add/edit form; uses `useActionState` |
+
+> `app/(dashboard)/orders/` *(not yet built — see [[Orders_Pages_Coding_Guide]])*
+
+| File | Kind | Description |
+|------|------|-------------|
+| `page.tsx` | Server Component | Orders list — joins customers + products for names; status badges colour-coded by stage |
+| `actions.ts` | Server Actions | `createOrder`, `updateOrder` |
+| `form/page.tsx` | Server Component | Reads `?id`, fetches order + all customers + all active products |
+| `form/OrderForm.tsx` | Client Component | Add/edit form; color dropdown driven by selected product via `useState` |
 
 **Shared helper (both form components):**
 

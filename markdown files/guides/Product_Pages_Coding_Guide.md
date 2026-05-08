@@ -492,7 +492,7 @@ export default async function ProductsPage() {
             {allProducts.length} product{allProducts.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <Button asChild variant="default" className="bg-blue-600 hover:bg-blue-700">
+        <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
           <Link href="/products/form">+ Add Product</Link>
         </Button>
       </div>
@@ -503,7 +503,7 @@ export default async function ProductsPage() {
           <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No products yet</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">Add your first product to get started.</p>
-          <Button asChild variant="default" className="bg-blue-600 hover:bg-blue-700">
+          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
             <Link href="/products/form">+ Add Product</Link>
           </Button>
         </div>
@@ -563,7 +563,7 @@ export default async function ProductsPage() {
 
                     {/* Edit */}
                     <td className="px-6 py-4 text-right">
-                      <Button asChild variant="outline" size="sm" className="dark:text-white">
+                      <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                         <Link href={`/products/form?id=${product.id}`}>Edit</Link>
                       </Button>
                     </td>
@@ -589,7 +589,7 @@ export default async function ProductsPage() {
                       {product.active ? "Active" : "Inactive"}
                     </span>
                   </div>
-                  <Button asChild variant="outline" size="sm" className="dark:text-white">
+                  <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                     <Link href={`/products/form?id=${product.id}`}>Edit</Link>
                   </Button>
                 </div>
