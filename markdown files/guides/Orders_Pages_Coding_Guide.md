@@ -11,7 +11,20 @@ Follows the same structure as the Customer and Product guides. Orders are more c
 5. `app/(dashboard)/orders/page.tsx` — orders list *(new file)*
 
 ---
+## Checklist
 
+- [x] `zod-schema/order.ts` — file replaced with fixed version ✅ 2026-05-07
+- [ ] `actions.ts` — `createOrder` and `updateOrder` created with auth checks
+- [ ] `form/page.tsx` — fetches order + all customers + all active products
+- [ ] `form/OrderForm.tsx` — color dropdown driven by selected product
+- [ ] `page.tsx` — list with `innerJoin` for customer and product names
+- [ ] Update `Home.md` mermaid diagram to add orders routes
+- [ ] Update `APP_REFERENCE.md` — add order server actions, pages, and the fixed schemas
+- [ ] Test: create an order, verify customer/product/color all save correctly
+- [ ] Test: change status, verify badge updates on list page
+- [ ] Test: edit an order, verify all fields pre-populate correctly
+
+---
 ## Architecture Schematic
 
 ```
@@ -731,15 +744,3 @@ export default async function OrdersPage() {
 
 ---
 
-## Checklist
-
-- [ ] `zod-schema/order.ts` — file replaced with fixed version
-- [ ] `actions.ts` — `createOrder` and `updateOrder` created with auth checks
-- [ ] `form/page.tsx` — fetches order + all customers + all active products
-- [ ] `form/OrderForm.tsx` — color dropdown driven by selected product
-- [ ] `page.tsx` — list with `innerJoin` for customer and product names
-- [ ] Update `Home.md` mermaid diagram to add orders routes
-- [ ] Update `APP_REFERENCE.md` — add order server actions, pages, and the fixed schemas
-- [ ] Test: create an order, verify customer/product/color all save correctly
-- [ ] Test: change status, verify badge updates on list page
-- [ ] Test: edit an order, verify all fields pre-populate correctly
