@@ -14,9 +14,9 @@ Follows the same structure as the Customer and Product guides. Orders are more c
 ## Checklist
 
 - [x] `zod-schema/order.ts` — file replaced with fixed version ✅ 2026-05-07
-- [ ] `actions.ts` — `createOrder` and `updateOrder` created with auth checks
-- [ ] `form/page.tsx` — fetches order + all customers + all active products
-- [ ] `form/OrderForm.tsx` — color dropdown driven by selected product
+- [x] `actions.ts` — `createOrder` and `updateOrder` created with auth checks ✅ 2026-05-09
+- [x] `form/page.tsx` — fetches order + all customers + all active products ✅ 2026-05-11
+- [x] `form/OrderForm.tsx` — color dropdown driven by selected product ✅ 2026-05-11
 - [ ] `page.tsx` — list with `innerJoin` for customer and product names
 - [ ] Update `Home.md` mermaid diagram to add orders routes
 - [ ] Update `APP_REFERENCE.md` — add order server actions, pages, and the fixed schemas
@@ -72,7 +72,10 @@ Drizzle stores and returns it as a string. The Zod schema validates it is `> 0`.
 **4. `estimatedDelivery` is a timestamp**
 Use `type="date"` on the input. The value from FormData will be a string like `"2026-06-01"` — convert it with `new Date(...)` before passing to Drizzle. If the field is empty, pass `undefined`.
 
-**5. Status enum — use schema values, NOT the constants**
+**5. `trackingNumber` is intentionally absent from the form**
+The `orders` table has a nullable `tracking_number varchar(100)` column added now as a placeholder. It will be populated by the shipping system (not user input) when that integration is built. Do not add it as a form field — leave it out of `parseFormData` and `OrderForm` until the shipping API is wired up.
+
+**6. Status enum — use schema values, NOT the constants**
 `OrderStatuses` in `constants/ProductConstants.ts` has values like `"designing"` and `"cancelled"`. The database enum (`OrderStatusEnum` in `db/schema.ts`) uses `"design"` and `"canceled"` (different spelling). Always use the **schema enum values** for the status dropdown or the insert will fail. Import `OrderStatusEnum` config directly or hardcode the options from the schema.
 
 ---
@@ -129,6 +132,7 @@ export type UpdateOrderType = z.infer<typeof updateOrderSchema>;
 - `estimatedDelivery` is optional — only convert to `Date` if it is not empty
 - `status` is an enum — Drizzle/Zod will validate it matches the schema values
 - No unique constraint on orders, so no `23505` try/catch needed
+- `trackingNumber` is **not** included in `parseFormData` — it will be set by the shipping system, not by this form
 
 ```ts
 "use server";
@@ -560,15 +564,15 @@ export function OrderForm({ order, customers, products }: Props) {
 
 **Status badge colors** — each status gets a distinct colour so you can scan at a glance:
 
-| Status | Classes |
-|--------|---------|
-| pending | `bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300` |
-| design | `bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300` |
-| production | `bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300` |
+| Status        | Classes                                                                 |
+| ------------- | ----------------------------------------------------------------------- |
+| pending       | `bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300` |
+| design        | `bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300`         |
+| production    | `bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300` |
 | quality_check | `bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300` |
-| shipped | `bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300` |
-| delivered | `bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300` |
-| canceled | `bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300` |
+| shipped       | `bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300` |
+| delivered     | `bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300`     |
+| canceled      | `bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300`         |
 
 ```tsx
 import { db } from "@/db";

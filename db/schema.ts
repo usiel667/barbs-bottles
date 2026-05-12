@@ -94,6 +94,7 @@ export const orders = pgTable("orders", {
   status: OrderStatusEnum("status").notNull().default("pending"),
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
   estimatedDelivery: timestamp("estimated_delivery"),
+  trackingNumber: varchar("tracking_number", { length: 100 }),
   assignedTo: varchar("assigned_to", { length: 255 }).default("unassigned"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date()),
