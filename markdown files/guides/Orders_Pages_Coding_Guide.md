@@ -17,7 +17,7 @@ Follows the same structure as the Customer and Product guides. Orders are more c
 - [x] `actions.ts` — `createOrder` and `updateOrder` created with auth checks ✅ 2026-05-09
 - [x] `form/page.tsx` — fetches order + all customers + all active products ✅ 2026-05-11
 - [x] `form/OrderForm.tsx` — color dropdown driven by selected product ✅ 2026-05-11
-- [ ] `page.tsx` — list with `innerJoin` for customer and product names
+- [x] `page.tsx` — list with `innerJoin` for customer and product names ✅ 2026-05-11
 - [ ] Update `Home.md` mermaid diagram to add orders routes
 - [ ] Update `APP_REFERENCE.md` — add order server actions, pages, and the fixed schemas
 - [ ] Test: create an order, verify customer/product/color all save correctly
