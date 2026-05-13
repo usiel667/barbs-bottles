@@ -104,8 +104,6 @@ Each constant is an array of `{ id: string, description: string }` objects.
 | `SelectOrderType` | Type | Inferred from `selectOrderSchema` |
 | `UpdateOrderType` | Type | Inferred from `updateOrderSchema` |
 
-> ⚠️ `zod-schema/order.ts` has bugs — fix before using. See Step 1 of [[Orders_Pages_Coding_Guide]].
-
 > `zod-schema/product.ts`
 
 | Name | Kind | Notes |
@@ -141,7 +139,7 @@ Each constant is an array of `{ id: string, description: string }` objects.
 | `createCustomer` | `(_prevState: FormState, formData: FormData)` | Creates a customer; validates auth, dedupes email |
 | `updateCustomer` | `(id: number, _prevState: FormState, formData: FormData)` | Updates a customer; validates auth, dedupes email |
 
-> `app/(dashboard)/orders/actions.ts` *(not yet built)*
+> `app/(dashboard)/orders/actions.ts`
 
 | Function | Parameters | Description |
 |----------|-----------|-------------|
@@ -183,7 +181,7 @@ type FormState = { errors?: Record<string, string[]> } | null
 | `form/page.tsx` | Server Component | Reads `?id` param, fetches customer if editing, renders `CustomerForm` |
 | `form/CustomerForm.tsx` | Client Component | Add/edit form; uses `useActionState` |
 
-> `app/(dashboard)/orders/` *(not yet built — see [[Orders_Pages_Coding_Guide]])*
+> `app/(dashboard)/orders/`
 
 | File | Kind | Description |
 |------|------|-------------|

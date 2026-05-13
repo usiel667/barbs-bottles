@@ -12,7 +12,7 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix Quick Action buttons black instead of blue → `app/(dashboard)/home/page.tsx` lines 85, 88, 91 — see [[Customer_Pages_Coding_Guide]] ✅ 2026-05-05
 - [x] Add `app/(dashboard)/error.tsx` Sentry error boundary — see [[Sentry_Setup]] ✅ 2026-05-05
 - [x] Fix active toggle always saving as inactive — change `get()` to `getAll().includes()` in `products/actions.ts:28` — see [[Bug_Fixes]] ✅ 2026-05-06
-- [ ] Build orders pages — fix Zod schema, actions, form, list with joins — see [[Orders_Pages_Coding_Guide]]
+- [x] Build orders pages — fix Zod schema, actions, form, list with joins — see [[Orders_Pages_Coding_Guide]] ✅ 2026-05-11
 - [ ] Add stock quantity to products — DB migration + 4 file changes — see [[Product_Pages_Coding_Guide]]
 - [x] Fix Edit buttons on products page — change to `bg-blue-600 hover:bg-blue-700 text-white` (lines 95, 120) — see [[UI_Issues_Design]] ✅ 2026-05-06
 - [x] Fix Add Product button text — add `text-white` (lines 25, 36) — see [[UI_Issues_Design]] ✅ 2026-05-06
