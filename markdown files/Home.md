@@ -123,6 +123,7 @@ PR and code reviews.
 
 - [[PR1_Customer_Pages_Review]] — Review of Copilot PR #1 (customers list and form pages)
 - [[App_Audit_2026-05-05]] — Security & correctness audit of products and customers actions (2026-05-05)
+- [[security-review-2026-05-12]] — Full codebase security review: hardcoded credentials and IDOR on update actions (2026-05-12)
 
 ---
 
