@@ -97,8 +97,9 @@ CREATE TABLE "order_items" (
 --> statement-breakpoint
 
 -- Migrate existing single-item orders into order_items before dropping columns
+-- NULLIF guards against any legacy rows with quantity = 0 (would cause divide-by-zero)
 INSERT INTO "order_items" ("order_id", "product_id", "quantity", "selected_color", "unit_price")
-SELECT id, product_id, quantity, selected_color, total_price / quantity
+SELECT id, product_id, quantity, selected_color, total_price / NULLIF(quantity, 0)
 FROM "orders";
 --> statement-breakpoint
 
@@ -148,7 +149,7 @@ const orderIds = await db.insert(orders).values([
     customDesignText: "Sarah's Hydration",
     designNotes: "Logo on both sides",
     status: "design",
-    totalPrice: "59.98",
+    totalPrice: "49.98",
     assignedTo: "designer@example.com",
   },
   {
@@ -226,6 +227,11 @@ export type SelectOrderItemType = z.infer<typeof selectOrderItemSchema>;
 ## Step 5 — Update `app/(dashboard)/orders/actions.ts`
 
 Replace the entire file:
+
+> **Security note:** `totalPrice` is computed server-side from the parsed items — never
+> trusted from the client. The hidden `totalPrice` input in the form is display-only and
+> intentionally omitted from `parseFormData`.
+
 ```ts
 "use server";
 
@@ -240,6 +246,15 @@ import { redirect } from "next/navigation";
 type FormState = {
   errors?: Record<string, string[]>;
 } | null;
+
+function computeTotal(items: { unitPrice: string; quantity: number; discount: string }[]): string {
+  const total = items.reduce((sum, item) => {
+    const price = parseFloat(item.unitPrice) || 0;
+    const disc = parseFloat(item.discount) || 0;
+    return sum + price * item.quantity * (1 - disc / 100);
+  }, 0);
+  return total.toFixed(2);
+}
 
 function parseFormData(formData: FormData) {
   const estimatedDeliveryRaw = formData.get("estimatedDelivery") as string | null;
@@ -260,7 +275,8 @@ function parseFormData(formData: FormData) {
     designNotes: formData.get("designNotes") || undefined,
     designProofUrl: formData.get("designProofUrl") || undefined,
     status: formData.get("status"),
-    totalPrice: formData.get("totalPrice"),
+    // totalPrice is computed server-side, never taken from the client
+    totalPrice: computeTotal(items),
     estimatedDelivery: estimatedDeliveryRaw ? new Date(estimatedDeliveryRaw) : undefined,
     assignedTo: formData.get("assignedTo") || "unassigned",
     items,
@@ -391,7 +407,7 @@ Key concepts:
 - The color dropdown for each row is derived from the selected product's `colors` JSON
 - A hidden input `itemCount` tells the server action how many rows exist
 - Each field uses the name pattern `items[i][fieldName]` so the server action can parse them
-- `totalPrice` is auto-calculated as the sum of `(unitPrice * quantity * (1 - discount/100))` across all items
+- The displayed `calculatedTotal` is for the user's reference only — the server recomputes it from items
 
 ```tsx
 "use client";
@@ -483,7 +499,7 @@ export function OrderForm({ order, existingItems = [], customers, products }: Pr
     });
   }
 
-  // Auto-calculate total
+  // Display-only total — server recomputes this from items on submit
   const calculatedTotal = items.reduce((sum, item) => {
     const price = parseFloat(item.unitPrice) || 0;
     const qty = item.quantity || 0;
@@ -513,8 +529,6 @@ export function OrderForm({ order, existingItems = [], customers, products }: Pr
 
         {/* Hidden count so the server knows how many items to parse */}
         <input type="hidden" name="itemCount" value={items.length} />
-        {/* Hidden computed total */}
-        <input type="hidden" name="totalPrice" value={calculatedTotal.toFixed(2)} />
 
         {/* Customer */}
         <div>
@@ -667,7 +681,7 @@ export function OrderForm({ order, existingItems = [], customers, products }: Pr
           <FieldError errors={state?.errors?.items} />
         </div>
 
-        {/* Order Total Summary */}
+        {/* Order Total Summary (display only) */}
         <div className="bg-gray-50 dark:bg-gray-700 rounded-md p-3 text-sm">
           <div className="flex justify-between font-semibold text-gray-900 dark:text-white">
             <span>Order Total</span>
@@ -1069,12 +1083,12 @@ Run these steps in order:
 
 In your Claude Code session, reference this file at the start of your prompt:
 
-```
-@docs/multi-item-orders-implementation.md  implement step 1
+```text
+@markdown files/guides/multi-item-orders-implementation.md  implement step 1
 ```
 
 Or to do all steps at once:
 
-```
-@docs/multi-item-orders-implementation.md  implement all steps in order
+```text
+@markdown files/guides/multi-item-orders-implementation.md  implement all steps in order
 ```
