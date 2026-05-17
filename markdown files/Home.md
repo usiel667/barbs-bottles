@@ -14,6 +14,7 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix active toggle always saving as inactive — change `get()` to `getAll().includes()` in `products/actions.ts:28` — see [[Bug_Fixes]] ✅ 2026-05-06
 - [x] Build orders pages — fix Zod schema, actions, form, list with joins — see [[Orders_Pages_Coding_Guide]] ✅ 2026-05-11
 - [ ] Add stock quantity to products — DB migration + 4 file changes — see [[Product_Pages_Coding_Guide]]
+- [ ] Implement multi-item orders — add `order_items` table, migrate schema, update actions/form/list with expandable rows — see [[multi-item-orders-implementation]]
 - [x] Fix Edit buttons on products page — change to `bg-blue-600 hover:bg-blue-700 text-white` (lines 95, 120) — see [[UI_Issues_Design]] ✅ 2026-05-06
 - [x] Fix Add Product button text — add `text-white` (lines 25, 36) — see [[UI_Issues_Design]] ✅ 2026-05-06
 - [x] Fix typo in `products/actions.ts:25` — `desingTemplates` → `designTemplate` (data silently never saves) — see [[Bug_Fixes]] ✅ 2026-05-06
@@ -89,6 +90,7 @@ Step-by-step coding guides for building features.
 - [[Customer_Pages_Coding_Guide]] — Server actions, form, and customer list pages with all review fixes applied
 - [[Product_Pages_Coding_Guide]] — Server actions, form, and product list pages with product-specific field handling (JSON colors, enums, decimal price)
 - [[Orders_Pages_Coding_Guide]] — Server actions, form, and orders list with joins; includes Zod schema bug fixes and dynamic color dropdown
+- [[multi-item-orders-implementation]] — Full step-by-step guide to adding multi-item support: `order_items` table, migration, updated Zod schemas, actions, dynamic form, and expandable-row list
 - [[Product_Image_Upload_Guide]] — Add UploadThing image uploads to products after orders are built *(do this last)*
 
 ---
