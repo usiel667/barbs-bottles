@@ -132,6 +132,8 @@ Run the migration:
 npm run db:migrate
 ```
 
+> **Note:** You could use `npm run db:generate` to auto-generate this migration file instead of writing it manually. However, Drizzle Kit only handles schema structure — it will **not** include the data migration step that copies existing order data into `order_items` before dropping the columns from `orders`. That INSERT is necessary to preserve real data. For this reason, follow the manual steps above so the data migration is included.
+
 ---
 
 ## Step 3 — Update `db/seed.ts`

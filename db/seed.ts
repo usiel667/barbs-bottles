@@ -1,5 +1,5 @@
 import { db } from "./index";
-import { customers, products, orders } from "./schema";
+import { customers, products, orders, orderItems } from "./schema";
 
 const main = async () => {
   console.log("Seeding database...");
@@ -53,35 +53,46 @@ const main = async () => {
   ]).returning({ id: customers.id });
 
   // Seed orders
-  await db.insert(orders).values([
+  const orderIds = await db.insert(orders).values([
     {
       customerId: customerIds[0].id,
-      productId: productIds[0].id,
-      quantity: 2,
-      selectedColor: "black",
       customDesignText: "Sarah's Hydration",
       designNotes: "Logo on both sides",
       status: "design",
-      totalPrice: "59.98",
+      totalPrice: "49.98",
       assignedTo: "designer@example.com",
+
     },
     {
       customerId: customerIds[1].id,
-      productId: productIds[1].id,
-      quantity: 50,
-      selectedColor: "white",
       customDesignText: "Chen Corp",
       designNotes: "Company logo in blue",
       status: "production",
       totalPrice: "999.50",
       assignedTo: "production@example.com",
     },
+  ]).returning({ id: orders.id });
+
+  await db.insert(orderItems).values([
+    {
+      orderId: orderIds[0].id,
+      productId: productIds[0].id,
+      quantity: 2,
+      selectedColor: "black",
+      unitPrice: "24.99",
+      discount: "0",
+    },
+    {
+      orderId: orderIds[1].id,
+      productId: productIds[1].id,
+      quantity: 50,
+      selectedColor: "white",
+      unitPrice: "19.99",
+      discount: "0",
+    }
   ]);
-
   console.log("Seeding completed");
-};
-
-main().catch((error) => {
+}; main().catch((error) => {
   console.error("Error during seeding:", error);
   process.exit(1);
 });

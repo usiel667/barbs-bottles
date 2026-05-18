@@ -82,11 +82,7 @@ export const orders = pgTable("orders", {
   customerId: integer("customer_id")
     .notNull()
     .references(() => customers.id),
-  productId: integer("product_id")
-    .notNull()
-    .references(() => products.id),
-  quantity: integer("quantity").notNull().default(1),
-  selectedColor: varchar("selected_color", { length: 50 }).notNull(),
+
   customDesignText: text("custom_design_text"), // Custom text for the design
   customLogoUrl: text("custom_logo_url"), // Customer's logo/image URL
   designNotes: text("design_notes"), // Internal design specifications
@@ -100,22 +96,47 @@ export const orders = pgTable("orders", {
   updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
+// OrderItems table to handle multiple products in an order
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  productId: integer("product_id")
+    .notNull()
+    .references(() => products.id),
+  quantity: integer("quantity").notNull().default(1),
+  selectedColor: varchar("selected_color", { length: 50 }).notNull(),
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+  discount: decimal("discount", { precision: 5, scale: 2 }).default("0"),
+
+}
+)
+
 // Relations
 export const customerRelations = relations(customers, ({ many }) => ({
   orders: many(orders),
 }));
 
-export const productRelations = relations(products, ({ many }) => ({
-  orders: many(orders),
-}));
-
-export const orderRelations = relations(orders, ({ one }) => ({
+export const orderRelations = relations(orders, ({ one, many }) => ({
   customer: one(customers, {
     fields: [orders.customerId],
     references: [customers.id],
   }),
+  items: many(orderItems),
+}));
+
+export const orderItemRelations = relations(orderItems, ({ one }) => ({
+  order: one(orders, {
+    fields: [orderItems.orderId],
+    references: [orders.id],
+  }),
   product: one(products, {
-    fields: [orders.productId],
+    fields: [orderItems.productId],
     references: [products.id],
   }),
+}));
+
+export const productRelations = relations(products, ({ many }) => ({
+  orders: many(orderItems),
 }));
