@@ -7,16 +7,16 @@ matching the expandable-row design shown in the reference screenshot.
 
 ## What Changes (Overview)
 
-| Area | Change |
-|------|--------|
-| `db/schema.ts` | Add `order_items` table; remove `productId`, `quantity`, `selectedColor` from `orders` |
-| `db/migrations/` | New migration SQL file |
-| `db/seed.ts` | Update to insert `order_items` rows |
-| `zod-schema/order.ts` | Add `orderItemSchema`; update order schemas |
-| `app/(dashboard)/orders/actions.ts` | Parse and insert multiple items |
-| `app/(dashboard)/orders/form/page.tsx` | Load existing items when editing |
-| `app/(dashboard)/orders/form/OrderForm.tsx` | Dynamic items UI with Add/Remove |
-| `app/(dashboard)/orders/page.tsx` | Expandable rows with line-item table and summary |
+| Area                                        | Change                                                                                 |
+| ------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `db/schema.ts`                              | Add `order_items` table; remove `productId`, `quantity`, `selectedColor` from `orders` |
+| `db/migrations/`                            | New migration SQL file                                                                 |
+| `db/seed.ts`                                | Update to insert `order_items` rows                                                    |
+| `zod-schema/order.ts`                       | Add `orderItemSchema`; update order schemas                                            |
+| `app/(dashboard)/orders/actions.ts`         | Parse and insert multiple items                                                        |
+| `app/(dashboard)/orders/form/page.tsx`      | Load existing items when editing                                                       |
+| `app/(dashboard)/orders/form/OrderForm.tsx` | Dynamic items UI with Add/Remove                                                       |
+| `app/(dashboard)/orders/page.tsx`           | Expandable rows with line-item table and summary                                       |
 
 ---
 

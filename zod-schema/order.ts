@@ -1,16 +1,16 @@
-import { creatInsertSchema, creatSelectSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { orders, orderItems } from "@/db/schema";
 import { z } from "zod";
 
-export const insertOrderItemSchema = creatInsertSchema(orderItems, {
+export const insertOrderItemSchema = createInsertSchema(orderItems, {
   quantity: (schema) => schema.min(1, "Quantity must be at least 1"),
-  selectColor: (schema) => schema.min(1, "Color is required"),
+  selectedColor: (schema) => schema.min(1, "Color is required"),
   unitPrice: (schema) => schema.refine((v) => parseFloat(v) >= 0, {
     message: "Unit price must be zero or more",
   }),
 });
 
-export const insertOrderSchema = creatInsertSchema(orders, {
+export const insertOrderSchema = createInsertSchema(orders, {
   totalPrice: (schema) => schema.refine((val) => parseFloat(val) > 0, {
     message: "Total price must be greater than 0",
   }),
@@ -19,8 +19,8 @@ export const insertOrderSchema = creatInsertSchema(orders, {
 });
 
 
-export const SelectOrderSchema = creatSelectSchema(orders);
-export const selectOrderItemSchema = creatSelectSchema(orderItems);
+export const selectOrderSchema = createSelectSchema(orders);
+export const selectOrderItemSchema = createSelectSchema(orderItems);
 
 export const updateOrderSchema = insertOrderSchema.omit({
   id: true,
@@ -29,7 +29,7 @@ export const updateOrderSchema = insertOrderSchema.omit({
 });
 
 export type InsertOrderType = z.infer<typeof insertOrderSchema>;
-export type SelectOrderType = z.infer<typeof SelectOrderSchema>;
+export type SelectOrderType = z.infer<typeof selectOrderSchema>;
 export type SelectOrderItemType = z.infer<typeof selectOrderItemSchema>;
 
 
