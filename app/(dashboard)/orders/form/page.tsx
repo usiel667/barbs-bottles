@@ -1,8 +1,9 @@
 import { db } from "@/db";
-import { orders, customers, products } from "@/db/schema";
+import { orders, customers, products, orderItems } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { OrderForm } from "./OrderForm";
+import { SelectOrderItemType } from "@/zod-schema/order";
 
 type Props = {
   searchParams: Promise<{ id?: string }>;
@@ -24,19 +25,20 @@ export default async function OrderFormPage({ searchParams }: Props) {
   ]);
 
   let order = null;
-  if (orderId !== null) {
-    const result = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.id, orderId))
-      .limit(1);
+  let existingItems: SelectOrderItemType[] = [];
 
+  if (orderId !== null) {
+    const result = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
     if (!result.length) notFound();
     order = result[0];
+
+    existingItems = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+
   }
   return (
     <OrderForm
       order={order}
+      existingItems={existingItems}
       customers={allCustomers}
       products={allProducts}
     />

@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { createOrder, updateOrder } from "@/app/(dashboard)/orders/actions";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { SelectOrderType } from "@/zod-schema/order";
+import { SelectOrderType, SelectOrderItemType } from "@/zod-schema/order";
 import { SelectCustomerType } from "@/zod-schema/customer";
 import { SelectProductType } from "@/zod-schema/product";
 
