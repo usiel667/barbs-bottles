@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { orders, customers, products } from "@/db/schema";
+import { orders, customers, products, orderItems } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -29,8 +29,8 @@ export default async function OrdersPage() {
   const allOrders = await db
     .select({
       id: orders.id,
-      quantity: orders.quantity,
-      selectedColor: orders.selectedColor,
+      quantity: orderItems.quantity,
+      selectedColor: orderItems.selectedColor,
       status: orders.status,
       totalPrice: orders.totalPrice,
       estimatedDelivery: orders.estimatedDelivery,
@@ -42,7 +42,8 @@ export default async function OrdersPage() {
     })
     .from(orders)
     .innerJoin(customers, eq(orders.customerId, customers.id))
-    .innerJoin(products, eq(orders.productId, products.id))
+    .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
+    .innerJoin(products, eq(orderItems.productId, products.id))
     .orderBy(desc(orders.createdAt));
 
   return (

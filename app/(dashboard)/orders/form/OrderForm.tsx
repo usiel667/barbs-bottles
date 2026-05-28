@@ -31,16 +31,17 @@ const ORDER_STATUSES = [
 
 type Props = {
   order?: SelectOrderType | null;
+  existingItems: SelectOrderItemType[];
   customers: SelectCustomerType[];
   products: SelectProductType[];
 };
 
-export function OrderForm({ order, customers, products }: Props) {
+export function OrderForm({ order, existingItems, customers, products }: Props) {
   const isEditing = Boolean(order);
 
   // Track selected product so we can derive available colors
   const [selectedProductId, setSelectedProductId] = useState<number | "">(
-    order?.productId ?? ""
+    existingItems[0]?.productId ?? ""
   );
 
   const selectedProduct = products.find((p) => p.id === Number(selectedProductId));
@@ -130,7 +131,7 @@ export function OrderForm({ order, customers, products }: Props) {
           </label>
           <select
             name="selectedColor"
-            defaultValue={order?.selectedColor ?? ""}
+            defaultValue={existingItems[0]?.selectedColor ?? ""}
             disabled={availableColors.length === 0}
             className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:opacity-50"
           >
@@ -157,7 +158,7 @@ export function OrderForm({ order, customers, products }: Props) {
               name="quantity"
               min="1"
               step="1"
-              defaultValue={order?.quantity ?? 1}
+              defaultValue={existingItems[0]?.quantity ?? 1}
               className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
             <FieldError errors={state?.errors?.quantity} />

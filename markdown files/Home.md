@@ -25,11 +25,12 @@ A central index for all project documentation. Click any link to open the note d
 - [ ] Review `sendDefaultPii: true` for GDPR compliance — see [[Sentry_Setup]]
 - [ ] Move Sentry DSN to `NEXT_PUBLIC_SENTRY_DSN` environment variable — see [[Sentry_Setup]]
 - [ ] Look into dotenvx precommit to prevent committing `.env` files — see [[DataBase_Debug]]
+- [ ] HELLO
 
 ### Obsidian Setup
 - [ ] Install Dataview plugin — auto-generate live TODO lists from all notes
-- [ ] Install Templater plugin — consistent structure for new notes
-- [ ] Install Tasks plugin — enhanced checkbox management
+- [x] Install Templater plugin — consistent structure for new notes
+- [x] Install Tasks plugin — enhanced checkbox management
 - [ ] Install Git plugin — commit notes alongside code from inside Obsidian
 
 ---
