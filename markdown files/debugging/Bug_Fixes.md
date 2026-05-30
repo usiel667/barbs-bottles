@@ -116,6 +116,54 @@ Customers form is not affected — it has no hidden input for `active`.
 
 ---
 
+---
+
+## Fix 7 — `order_items` table missing from database (migration never run)
+
+**File:** `app/(dashboard)/orders/page.tsx` — runtime error on DB query
+
+**Problem:** The `order_items` table was added to `db/schema.ts` but `db:push` (or `db:migrate`) was never run. The query on `/orders` threw Postgres error 42P01: `relation "order_items" does not exist`.
+
+**Fix:**
+```bash
+export $(grep -v '^#' .env.local | grep DATABASE_URL | xargs) && npm run db:push --force
+```
+
+The `--force` flag auto-approves dropping the 3 columns (`product_id`, `quantity`, `selected_color`) that moved from `orders` to `order_items`. Safe for dev/test data — use a manual migration with a data-copy INSERT for production. See [[DataBase_Debug]] for why `DATABASE_URL` must be exported manually before drizzle-kit commands.
+
+---
+
+## Fix 8 — `totalPrice` always 0, order creation rejected by Zod
+
+**File:** `app/(dashboard)/orders/form/OrderForm.tsx`
+
+**Problem:** `parseFormData` in `actions.ts` reads items using the pattern `items[0][productId]`, `items[0][quantity]`, `items[0][unitPrice]` etc., controlled by a hidden `itemCount` field. The form was submitting flat field names (`productId`, `quantity`, `selectedColor`) with no `itemCount`. So `itemCount` resolved to 0, the items array was empty, `computeTotal([])` returned `"0.00"`, and Zod rejected it with "Total price must be greater than 0".
+
+**Fix:** Remove `name` from the product select (it's controlled via `onChange` state). Add hidden inputs that match the action's expected format:
+```tsx
+<input type="hidden" name="itemCount" value={itemRows.length} />
+<input type="hidden" name={`items[${i}][productId]`} value={String(row.productId || "")} />
+<input type="hidden" name={`items[${i}][unitPrice]`} value={product?.basePrice ?? "0"} />
+<input type="hidden" name={`items[${i}][discount]`} value="0" />
+```
+Rename quantity and color inputs to `items[i][quantity]` and `items[i][selectedColor]`.
+
+---
+
+## Fix 9 — Duplicate React key on orders list (flat join returns multiple rows per order)
+
+**File:** `app/(dashboard)/orders/page.tsx`
+
+**Problem:** The page used a flat `innerJoin` with `orderItems`. Once orders could have multiple items, the join returned one row per item — so an order with 3 items produced 3 rows with the same `key={order.id}`, causing a React duplicate-key warning and incorrect rendering.
+
+**Fix:** Split the query into two:
+1. Fetch orders + customers (one row per order)
+2. Fetch all order items + products for those order IDs using `inArray`
+
+Group items by `orderId` in a `Map`, then render one `<OrderRow order={o} items={itemsByOrder.get(o.id) ?? []} />` per order.
+
+---
+
 ## Fix 5 — Typo in auth error message
 
 **File:** `app/(dashboard)/customers/actions.ts:38`

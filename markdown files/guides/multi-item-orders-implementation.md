@@ -1067,17 +1067,42 @@ export function OrderRow({ order, items }: Props) {
 
 Run these steps in order:
 
-1. Edit `db/schema.ts`
-2. Create `db/migrations/0002_multi_item_orders.sql` + update `_journal.json`
-3. Run `npm run db:migrate`
-4. Edit `db/seed.ts`
-5. Edit `zod-schema/order.ts`
-6. Edit `app/(dashboard)/orders/actions.ts`
-7. Edit `app/(dashboard)/orders/form/page.tsx`
-8. Replace `app/(dashboard)/orders/form/OrderForm.tsx`
-9. Create `app/(dashboard)/orders/OrderRow.tsx`
-10. Replace `app/(dashboard)/orders/page.tsx`
-11. Run `npm run dev` and test creating a new order with multiple items
+1. [x] Edit `db/schema.ts` ✅ 2026-05-29
+2. [x] Run `npm run db:push` to sync schema ✅ 2026-05-29 *(see Session Notes — used push instead of manual migration)*
+3. [x] Edit `zod-schema/order.ts` ✅ 2026-05-29
+4. [x] Edit `app/(dashboard)/orders/actions.ts` ✅ 2026-05-29
+5. [x] Edit `app/(dashboard)/orders/form/page.tsx` ✅ 2026-05-29
+6. [x] Replace `app/(dashboard)/orders/form/OrderForm.tsx` ✅ 2026-05-29
+7. [x] Create `app/(dashboard)/orders/OrderRow.tsx` ✅ 2026-05-29
+8. [x] Replace `app/(dashboard)/orders/page.tsx` ✅ 2026-05-29
+9. [x] Test creating a new order with multiple items ✅ 2026-05-29
+
+---
+
+## Session Notes — What Differed From the Guide (2026-05-29)
+
+### db:push instead of db:migrate
+The guide calls for writing a manual migration SQL file and running `db:migrate`. In practice, `db:push --force` was used instead since the two existing orders were test data and didn't need to be preserved. This is faster for dev but skips the data-migration INSERT. For production use the manual migration in Step 2.
+
+### drizzle-kit doesn't load `.env.local`
+Running `npm run db:push` without anything extra fails with "connection URL required". Drizzle Kit reads `process.env.DATABASE_URL` but does not auto-load `.env.local`. Fix: export the variable inline before running the command:
+
+```bash
+export $(grep -v '^#' .env.local | grep DATABASE_URL | xargs) && npm run db:push
+```
+
+See [[DataBase_Debug]] for full context on this pattern.
+
+### Three bugs hit during implementation
+
+**Bug A — totalPrice always 0**
+The `OrderForm` was submitting flat field names (`productId`, `quantity`, `selectedColor`) but `parseFormData` in `actions.ts` reads them as `items[0][productId]`, `items[0][quantity]`, etc. Because `itemCount` was never sent, the items array was always empty and `computeTotal([])` returned `"0.00"`, failing Zod validation. Fix: rename form fields to match the `items[i][field]` pattern and add hidden `itemCount` + `unitPrice` + `discount` inputs.
+
+**Bug B — `order_items` relation didn't exist in DB**
+The schema was updated but `db:push` was never run. The query on `/orders` threw `relation "order_items" does not exist` (Postgres error 42P01). Fix: run `db:push`.
+
+**Bug C — duplicate React key on orders list**
+The old `page.tsx` used a flat `innerJoin` with `orderItems`. Once orders could have multiple items, the join returned multiple rows per order, causing duplicate `key={order.id}`. Fix: split into two queries (orders+customers, then orderItems+products using `inArray`), group items by `orderId` in JS, and render one `<OrderRow>` per order. See [[Bug_Fixes]].
 
 ---
 

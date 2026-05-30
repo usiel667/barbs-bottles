@@ -14,7 +14,7 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix active toggle always saving as inactive — change `get()` to `getAll().includes()` in `products/actions.ts:28` — see [[Bug_Fixes]] ✅ 2026-05-06
 - [x] Build orders pages — fix Zod schema, actions, form, list with joins — see [[Orders_Pages_Coding_Guide]] ✅ 2026-05-11
 - [ ] Add stock quantity to products — DB migration + 4 file changes — see [[Product_Pages_Coding_Guide]]
-- [ ] Implement multi-item orders — add `order_items` table, migrate schema, update actions/form/list with expandable rows — see [[multi-item-orders-implementation]]
+- [x] Implement multi-item orders — add `order_items` table, push schema via `db:push`, updated actions/form/list with expandable rows and `OrderRow` — see [[multi-item-orders-implementation]] ✅ 2026-05-29
 - [x] Fix Edit buttons on products page — change to `bg-blue-600 hover:bg-blue-700 text-white` (lines 95, 120) — see [[UI_Issues_Design]] ✅ 2026-05-06
 - [x] Fix Add Product button text — add `text-white` (lines 25, 36) — see [[UI_Issues_Design]] ✅ 2026-05-06
 - [x] Fix typo in `products/actions.ts:25` — `desingTemplates` → `designTemplate` (data silently never saves) — see [[Bug_Fixes]] ✅ 2026-05-06
@@ -25,7 +25,6 @@ A central index for all project documentation. Click any link to open the note d
 - [ ] Review `sendDefaultPii: true` for GDPR compliance — see [[Sentry_Setup]]
 - [ ] Move Sentry DSN to `NEXT_PUBLIC_SENTRY_DSN` environment variable — see [[Sentry_Setup]]
 - [ ] Look into dotenvx precommit to prevent committing `.env` files — see [[DataBase_Debug]]
-- [ ] HELLO
 
 ### Obsidian Setup
 - [ ] Install Dataview plugin — auto-generate live TODO lists from all notes
@@ -65,7 +64,7 @@ flowchart TD
     CUSTOMERS -->|db.select| DB
     PRODUCTS -->|db.select| DB
     ORDERS -->|?id param| ORD_FORM
-    ORDERS -->|innerJoin customers + products| DB
+    ORDERS -->|select orders+customers, inArray orderItems+products, grouped by orderId| DB
     ORD_FORM -->|createOrder / updateOrder| ORD_ACTIONS["orders/actions.ts"]
     ORD_ACTIONS -->|insert / update| DB
 ```

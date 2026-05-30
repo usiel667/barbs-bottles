@@ -20,9 +20,11 @@ Follows the same structure as the Customer and Product guides. Orders are more c
 - [x] `page.tsx` — list with `innerJoin` for customer and product names ✅ 2026-05-11
 - [x] Update `Home.md` mermaid diagram to add orders routes ✅ 2026-05-11
 - [x] Update `APP_REFERENCE.md` — add order server actions, pages, and the fixed schemas ✅ 2026-05-11
-- [ ] Test: create an order, verify customer/product/color all save correctly
-- [ ] Test: change status, verify badge updates on list page
-- [ ] Test: edit an order, verify all fields pre-populate correctly
+- [x] Test: create an order, verify customer/product/color all save correctly ✅ 2026-05-29
+- [x] Test: change status, verify badge updates on list page ✅ 2026-05-29
+- [x] Test: edit an order, verify all fields pre-populate correctly ✅ 2026-05-29
+
+> **Note:** This guide covers the original single-item-per-order implementation. The codebase has since been upgraded to support multiple items per order. See [[multi-item-orders-implementation]] for the current architecture — it supersedes Steps 1–5 here.
 
 ---
 ## Architecture Schematic

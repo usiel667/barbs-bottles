@@ -18,7 +18,6 @@ function FieldError({ errors }: { errors?: string[] }) {
   return <p className="text-sm text-red-600 mt-1">{errors[0]}</p>;
 }
 
-// Use schema enum values — NOT the values from ProductConstants.ts (they differ)
 const ORDER_STATUSES = [
   { id: "pending", label: "Pending" },
   { id: "design", label: "Design" },
@@ -28,6 +27,12 @@ const ORDER_STATUSES = [
   { id: "delivered", label: "Delivered" },
   { id: "canceled", label: "Canceled" },
 ];
+
+type ItemRow = {
+  productId: number | "";
+  selectedColor: string;
+  quantity: number;
+};
 
 type Props = {
   order?: SelectOrderType | null;
@@ -39,33 +44,52 @@ type Props = {
 export function OrderForm({ order, existingItems, customers, products }: Props) {
   const isEditing = Boolean(order);
 
-  // Track selected product so we can derive available colors
-  const [selectedProductId, setSelectedProductId] = useState<number | "">(
-    existingItems[0]?.productId ?? ""
+  const [itemRows, setItemRows] = useState<ItemRow[]>(
+    existingItems.length > 0
+      ? existingItems.map((item) => ({
+          productId: item.productId,
+          selectedColor: item.selectedColor,
+          quantity: item.quantity,
+        }))
+      : [{ productId: "", selectedColor: "", quantity: 1 }]
   );
 
-  const selectedProduct = products.find((p) => p.id === Number(selectedProductId));
+  function updateItem(index: number, field: keyof ItemRow, value: string | number) {
+    setItemRows((rows) =>
+      rows.map((row, i) =>
+        i !== index
+          ? row
+          : {
+              ...row,
+              [field]: value,
+              ...(field === "productId" ? { selectedColor: "" } : {}),
+            }
+      )
+    );
+  }
 
-  // Parse the product's stored JSON colors string to get color options
-  let availableColors: string[] = [];
-  if (selectedProduct?.colors) {
+  function addItem() {
+    setItemRows((rows) => [...rows, { productId: "", selectedColor: "", quantity: 1 }]);
+  }
+
+  function removeItem(index: number) {
+    setItemRows((rows) => rows.filter((_, i) => i !== index));
+  }
+
+  function getColorsForProduct(productId: number | ""): string[] {
+    if (!productId) return [];
+    const product = products.find((p) => p.id === Number(productId));
+    if (!product?.colors) return [];
     try {
-      availableColors = JSON.parse(selectedProduct.colors);
+      return JSON.parse(product.colors);
     } catch {
-      availableColors = [];
+      return [];
     }
   }
 
-  const action = isEditing
-    ? updateOrder.bind(null, order!.id)
-    : createOrder;
+  const action = isEditing ? updateOrder.bind(null, order!.id) : createOrder;
+  const [state, formAction, isPending] = useActionState<FormState, FormData>(action, null);
 
-  const [state, formAction, isPending] = useActionState<FormState, FormData>(
-    action,
-    null
-  );
-
-  // Format estimatedDelivery for the date input (needs "YYYY-MM-DD")
   const deliveryDefault = order?.estimatedDelivery
     ? new Date(order.estimatedDelivery).toISOString().split("T")[0]
     : "";
@@ -103,81 +127,105 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
           <FieldError errors={state?.errors?.customerId} />
         </div>
 
-        {/* Product */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Product <span className="text-red-500">*</span>
+        {/* Items */}
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Items <span className="text-red-500">*</span>
           </label>
-          <select
-            name="productId"
-            value={selectedProductId}
-            onChange={(e) => setSelectedProductId(e.target.value ? Number(e.target.value) : "")}
-            className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+
+          <input type="hidden" name="itemCount" value={itemRows.length} />
+
+          {itemRows.map((row, i) => {
+            const availableColors = getColorsForProduct(row.productId);
+            const product = products.find((p) => p.id === Number(row.productId));
+
+            return (
+              <div key={i} className="border dark:border-gray-600 rounded-lg p-4 space-y-3 relative">
+                {itemRows.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeItem(i)}
+                    className="absolute top-3 right-3 text-xs text-red-500 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                )}
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    Product
+                  </label>
+                  <select
+                    value={row.productId}
+                    onChange={(e) =>
+                      updateItem(i, "productId", e.target.value ? Number(e.target.value) : "")
+                    }
+                    className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  >
+                    <option value="">Select product</option>
+                    {products.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} — {p.size} ({p.material.replace("_", " ")})
+                      </option>
+                    ))}
+                  </select>
+                  <input type="hidden" name={`items[${i}][productId]`} value={String(row.productId || "")} />
+                  <input type="hidden" name={`items[${i}][unitPrice]`} value={product?.basePrice ?? "0"} />
+                  <input type="hidden" name={`items[${i}][discount]`} value="0" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      Color
+                    </label>
+                    <select
+                      name={`items[${i}][selectedColor]`}
+                      value={row.selectedColor}
+                      onChange={(e) => updateItem(i, "selectedColor", e.target.value)}
+                      disabled={availableColors.length === 0}
+                      className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:opacity-50"
+                    >
+                      <option value="">
+                        {availableColors.length === 0 ? "Select a product first" : "Select color"}
+                      </option>
+                      {availableColors.map((color) => (
+                        <option key={color} value={color}>
+                          {color.charAt(0).toUpperCase() + color.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      name={`items[${i}][quantity]`}
+                      min="1"
+                      step="1"
+                      value={row.quantity}
+                      onChange={(e) => updateItem(i, "quantity", Number(e.target.value) || 1)}
+                      className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={addItem}
+            className="w-full dark:text-white"
           >
-            <option value="">Select product</option>
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} — {p.size} ({p.material.replace("_", " ")})
-              </option>
-            ))}
-          </select>
-          <FieldError errors={state?.errors?.productId} />
-        </div>
+            + Add Item
+          </Button>
 
-        {/* Color — derived from selected product */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Color <span className="text-red-500">*</span>
-          </label>
-          <select
-            name="selectedColor"
-            defaultValue={existingItems[0]?.selectedColor ?? ""}
-            disabled={availableColors.length === 0}
-            className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:opacity-50"
-          >
-            <option value="">
-              {availableColors.length === 0 ? "Select a product first" : "Select color"}
-            </option>
-            {availableColors.map((color) => (
-              <option key={color} value={color}>
-                {color.charAt(0).toUpperCase() + color.slice(1)}
-              </option>
-            ))}
-          </select>
-          <FieldError errors={state?.errors?.selectedColor} />
-        </div>
-
-        {/* Quantity + Total Price */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Quantity <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              name="quantity"
-              min="1"
-              step="1"
-              defaultValue={existingItems[0]?.quantity ?? 1}
-              className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            />
-            <FieldError errors={state?.errors?.quantity} />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Total Price ($) <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              name="totalPrice"
-              min="0"
-              step="0.01"
-              defaultValue={order?.totalPrice ?? ""}
-              className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            />
-            <FieldError errors={state?.errors?.totalPrice} />
-          </div>
+          <FieldError errors={state?.errors?.items} />
         </div>
 
         {/* Status */}
