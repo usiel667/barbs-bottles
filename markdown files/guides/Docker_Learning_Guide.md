@@ -76,6 +76,22 @@ sudo usermod -aG docker $USER
 # Log out and back in for this to take effect
 ```
 
+### Linux (Arch / Manjaro)
+```bash
+# Install Docker from the official repos
+sudo pacman -S docker
+
+# Start and enable the service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add your user to the docker group (avoid sudo every time)
+sudo usermod -aG docker $USER
+# Log out and back in for this to take effect
+```
+
+> **Docker Compose on Arch:** Compose is a separate package — install it with `sudo pacman -S docker-compose`.
+
 ### Verify installation
 ```bash
 docker --version
