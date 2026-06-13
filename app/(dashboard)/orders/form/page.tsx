@@ -2,8 +2,7 @@ import { db } from "@/db";
 import { orders, customers, products, orderItems } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { OrderForm } from "./OrderForm";
-import { SelectOrderItemType } from "@/zod-schema/order";
+import { OrderForm, ExistingItem } from "./OrderForm";
 
 type Props = {
   searchParams: Promise<{ id?: string }>;
@@ -25,7 +24,7 @@ export default async function OrderFormPage({ searchParams }: Props) {
   ]);
 
   let order = null;
-  let existingItems: SelectOrderItemType[] = [];
+  let existingItems: ExistingItem[] = [];
 
   if (orderId !== null) {
     const result = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);

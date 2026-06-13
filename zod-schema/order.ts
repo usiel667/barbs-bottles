@@ -2,7 +2,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { orders, orderItems } from "@/db/schema";
 import { z } from "zod";
 
-export const insertOrderItemSchema = createInsertSchema(orderItems, {
+const insertOrderItemSchema = createInsertSchema(orderItems, {
   quantity: (schema) => schema.min(1, "Quantity must be at least 1"),
   selectedColor: (schema) => schema.min(1, "Color is required"),
   unitPrice: (schema) => schema.refine((v) => parseFloat(v) >= 0, {
@@ -20,8 +20,6 @@ export const insertOrderSchema = createInsertSchema(orders, {
 
 
 export const selectOrderSchema = createSelectSchema(orders);
-export const selectOrderItemSchema = createSelectSchema(orderItems);
-
 export const updateOrderSchema = insertOrderSchema.omit({
   id: true,
   createdAt: true,
@@ -30,6 +28,5 @@ export const updateOrderSchema = insertOrderSchema.omit({
 
 export type InsertOrderType = z.infer<typeof insertOrderSchema>;
 export type SelectOrderType = z.infer<typeof selectOrderSchema>;
-export type SelectOrderItemType = z.infer<typeof selectOrderItemSchema>;
 
 

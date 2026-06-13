@@ -5,9 +5,11 @@ import { useActionState } from "react";
 import { createOrder, updateOrder } from "@/app/(dashboard)/orders/actions";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { SelectOrderType, SelectOrderItemType } from "@/zod-schema/order";
+import { SelectOrderType } from "@/zod-schema/order";
 import { SelectCustomerType } from "@/zod-schema/customer";
 import { SelectProductType } from "@/zod-schema/product";
+import { OrderItemRow, ItemRow } from "./OrderItemRow";
+import { OrderDesignFields } from "./OrderDesignFields";
 
 type FormState = {
   errors?: Record<string, string[]>;
@@ -28,15 +30,15 @@ const ORDER_STATUSES = [
   { id: "canceled", label: "Canceled" },
 ];
 
-type ItemRow = {
-  productId: number | "";
+export type ExistingItem = {
+  productId: number;
   selectedColor: string;
   quantity: number;
 };
 
 type Props = {
   order?: SelectOrderType | null;
-  existingItems: SelectOrderItemType[];
+  existingItems: ExistingItem[];
   customers: SelectCustomerType[];
   products: SelectProductType[];
 };
@@ -59,11 +61,7 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
       rows.map((row, i) =>
         i !== index
           ? row
-          : {
-              ...row,
-              [field]: value,
-              ...(field === "productId" ? { selectedColor: "" } : {}),
-            }
+          : { ...row, [field]: value, ...(field === "productId" ? { selectedColor: "" } : {}) }
       )
     );
   }
@@ -74,17 +72,6 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
 
   function removeItem(index: number) {
     setItemRows((rows) => rows.filter((_, i) => i !== index));
-  }
-
-  function getColorsForProduct(productId: number | ""): string[] {
-    if (!productId) return [];
-    const product = products.find((p) => p.id === Number(productId));
-    if (!product?.colors) return [];
-    try {
-      return JSON.parse(product.colors);
-    } catch {
-      return [];
-    }
   }
 
   const action = isEditing ? updateOrder.bind(null, order!.id) : createOrder;
@@ -132,99 +119,21 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Items <span className="text-red-500">*</span>
           </label>
-
           <input type="hidden" name="itemCount" value={itemRows.length} />
-
-          {itemRows.map((row, i) => {
-            const availableColors = getColorsForProduct(row.productId);
-            const product = products.find((p) => p.id === Number(row.productId));
-
-            return (
-              <div key={i} className="border dark:border-gray-600 rounded-lg p-4 space-y-3 relative">
-                {itemRows.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeItem(i)}
-                    className="absolute top-3 right-3 text-xs text-red-500 hover:text-red-700"
-                  >
-                    Remove
-                  </button>
-                )}
-
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    Product
-                  </label>
-                  <select
-                    value={row.productId}
-                    onChange={(e) =>
-                      updateItem(i, "productId", e.target.value ? Number(e.target.value) : "")
-                    }
-                    className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  >
-                    <option value="">Select product</option>
-                    {products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} — {p.size} ({p.material.replace("_", " ")})
-                      </option>
-                    ))}
-                  </select>
-                  <input type="hidden" name={`items[${i}][productId]`} value={String(row.productId || "")} />
-                  <input type="hidden" name={`items[${i}][unitPrice]`} value={product?.basePrice ?? "0"} />
-                  <input type="hidden" name={`items[${i}][discount]`} value="0" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                      Color
-                    </label>
-                    <select
-                      name={`items[${i}][selectedColor]`}
-                      value={row.selectedColor}
-                      onChange={(e) => updateItem(i, "selectedColor", e.target.value)}
-                      disabled={availableColors.length === 0}
-                      className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:opacity-50"
-                    >
-                      <option value="">
-                        {availableColors.length === 0 ? "Select a product first" : "Select color"}
-                      </option>
-                      {availableColors.map((color) => (
-                        <option key={color} value={color}>
-                          {color.charAt(0).toUpperCase() + color.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                      Quantity
-                    </label>
-                    <input
-                      type="number"
-                      name={`items[${i}][quantity]`}
-                      min="1"
-                      step="1"
-                      value={row.quantity}
-                      onChange={(e) => updateItem(i, "quantity", Number(e.target.value) || 1)}
-                      className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={addItem}
-            className="w-full dark:text-white"
-          >
+          {itemRows.map((row, i) => (
+            <OrderItemRow
+              key={i}
+              row={row}
+              index={i}
+              products={products}
+              showRemove={itemRows.length > 1}
+              onUpdate={updateItem}
+              onRemove={removeItem}
+            />
+          ))}
+          <Button type="button" variant="outline" onClick={addItem} className="w-full dark:text-white">
             + Add Item
           </Button>
-
           <FieldError errors={state?.errors?.items} />
         </div>
 
@@ -245,73 +154,7 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
           <FieldError errors={state?.errors?.status} />
         </div>
 
-        {/* Estimated Delivery */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Estimated Delivery <span className="text-gray-400 font-normal">(optional)</span>
-          </label>
-          <input
-            type="date"
-            name="estimatedDelivery"
-            defaultValue={deliveryDefault}
-            className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-        </div>
-
-        {/* Assigned To */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Assigned To <span className="text-gray-400 font-normal">(optional)</span>
-          </label>
-          <input
-            type="text"
-            name="assignedTo"
-            defaultValue={order?.assignedTo ?? ""}
-            placeholder="unassigned"
-            className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-        </div>
-
-        {/* Custom Design Text */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Custom Design Text <span className="text-gray-400 font-normal">(optional)</span>
-          </label>
-          <textarea
-            name="customDesignText"
-            rows={2}
-            defaultValue={order?.customDesignText ?? ""}
-            placeholder="e.g. Company name, slogan..."
-            className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-        </div>
-
-        {/* Design Notes */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Design Notes <span className="text-gray-400 font-normal">(optional)</span>
-          </label>
-          <textarea
-            name="designNotes"
-            rows={2}
-            defaultValue={order?.designNotes ?? ""}
-            placeholder="Internal notes for the design team..."
-            className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-        </div>
-
-        {/* Custom Logo URL */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Custom Logo URL <span className="text-gray-400 font-normal">(optional)</span>
-          </label>
-          <input
-            type="url"
-            name="customLogoUrl"
-            defaultValue={order?.customLogoUrl ?? ""}
-            className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-        </div>
+        <OrderDesignFields order={order} deliveryDefault={deliveryDefault} />
 
         {/* Submit */}
         <div className="flex gap-3 pt-2">
