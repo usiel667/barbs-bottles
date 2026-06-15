@@ -11,7 +11,8 @@
     "db:migrate": "tsx ./db/migrate.ts",
     "db:seed": "tsx ./db/seed.ts",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle_kit studio"
+    "db:studio": "drizzle_kit studio",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -49,6 +50,8 @@
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.5"
   }
 }
