@@ -14,6 +14,7 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix active toggle always saving as inactive — change `get()` to `getAll().includes()` in `products/actions.ts:28` — see [[Bug_Fixes]] ✅ 2026-05-06
 - [x] Build orders pages — fix Zod schema, actions, form, list with joins — see [[Orders_Pages_Coding_Guide]] ✅ 2026-05-11
 - [ ] Add stock quantity to products — DB migration + 4 file changes — see [[Product_Pages_Coding_Guide]]
+- [ ] Coldest products schema update + inventory seed — update enums, add 10 new columns, rename colors→designs, seed 10 products with 121 designs — see [[Coldest_Products_Schema_Update]]
 - [x] Implement multi-item orders — add `order_items` table, push schema via `db:push`, updated actions/form/list with expandable rows and `OrderRow` — see [[multi-item-orders-implementation]] ✅ 2026-05-29
 - [x] Fix Edit buttons on products page — change to `bg-blue-600 hover:bg-blue-700 text-white` (lines 95, 120) — see [[UI_Issues_Design]] ✅ 2026-05-06
 - [x] Fix Add Product button text — add `text-white` (lines 25, 36) — see [[UI_Issues_Design]] ✅ 2026-05-06
@@ -92,6 +93,7 @@ Step-by-step coding guides for building features.
 - [[Orders_Pages_Coding_Guide]] — Server actions, form, and orders list with joins; includes Zod schema bug fixes and dynamic color dropdown
 - [[multi-item-orders-implementation]] — Full step-by-step guide to adding multi-item support: `order_items` table, migration, updated Zod schemas, actions, dynamic form, and expandable-row list
 - [[Product_Image_Upload_Guide]] — Add UploadThing image uploads to products after orders are built *(do this last)*
+- [[Coldest_Products_Schema_Update]] — Schema update + seed: real Coldest bottle sizes, series, designs, 10 products seeded
 
 ---
 

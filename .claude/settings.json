@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "fallow": {
+      "command": "/home/usiel667/.npm-global/bin/fallow-mcp"
+    }
+  }
+}
