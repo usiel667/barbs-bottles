@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { SelectOrderType } from "@/zod-schema/order";
 import { SelectCustomerType } from "@/zod-schema/customer";
-import { SelectProductType } from "@/zod-schema/product";
-import { OrderItemRow, ItemRow } from "./OrderItemRow";
+import { OrderItemRow, ItemRow, ProductWithDesigns } from "./OrderItemRow";
 import { OrderDesignFields } from "./OrderDesignFields";
 
 type FormState = {
@@ -40,7 +39,7 @@ type Props = {
   order?: SelectOrderType | null;
   existingItems: ExistingItem[];
   customers: SelectCustomerType[];
-  products: SelectProductType[];
+  products: ProductWithDesigns[];
 };
 
 export function OrderForm({ order, existingItems, customers, products }: Props) {
@@ -49,10 +48,10 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
   const [itemRows, setItemRows] = useState<ItemRow[]>(
     existingItems.length > 0
       ? existingItems.map((item) => ({
-          productId: item.productId,
-          selectedColor: item.selectedColor,
-          quantity: item.quantity,
-        }))
+        productId: item.productId,
+        selectedColor: item.selectedColor,
+        quantity: item.quantity,
+      }))
       : [{ productId: "", selectedColor: "", quantity: 1 }]
   );
 
@@ -87,8 +86,8 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           {isEditing ? "Edit Order" : "New Order"}
         </h1>
-        <Button asChild variant="outline" className="dark:text-white">
-          <Link href="/orders">Cancel</Link>
+        <Button asChild variant="outline" className="dark:text-white bg-blue-600 hover:bg-blue-700">
+          <Link href="/orders">Back to Orders</Link>
         </Button>
       </div>
 

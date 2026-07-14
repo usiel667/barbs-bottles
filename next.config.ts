@@ -2,7 +2,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["10.0.0.92"],
+  allowedDevOrigins: ["10.0.0.91"],
 };
 
 export default withSentryConfig(nextConfig, {

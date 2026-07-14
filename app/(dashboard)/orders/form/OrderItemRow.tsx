@@ -1,6 +1,7 @@
 "use client";
 
 import { SelectProductType } from "@/zod-schema/product";
+import { SelectProductDesignType } from "@/zod-schema/productDesign";
 
 export type ItemRow = {
   productId: number | "";
@@ -8,29 +9,29 @@ export type ItemRow = {
   quantity: number;
 };
 
+export type ProductWithDesigns = SelectProductType & { designs: SelectProductDesignType[] };
+
 type Props = {
   row: ItemRow;
   index: number;
-  products: SelectProductType[];
+  products: ProductWithDesigns[];
   showRemove: boolean;
   onUpdate: (index: number, field: keyof ItemRow, value: string | number) => void;
   onRemove: (index: number) => void;
 };
 
-function getColorsForProduct(products: SelectProductType[], productId: number | ""): string[] {
+function getDesignsForProduct(
+  products: ProductWithDesigns[],
+  productId: number | ""
+): SelectProductDesignType[] {
   if (!productId) return [];
   const product = products.find((p) => p.id === Number(productId));
-  if (!product?.colors) return [];
-  try {
-    return JSON.parse(product.colors);
-  } catch {
-    return [];
-  }
+  return product?.designs.filter((d) => d.inStock) ?? [];
 }
 
 export function OrderItemRow({ row, index, products, showRemove, onUpdate, onRemove }: Props) {
-  const availableColors = getColorsForProduct(products, row.productId);
-  const product = products.find((p) => p.id === Number(row.productId));
+  const availableDesigns = getDesignsForProduct(products, row.productId);
+  const selectedDesign = availableDesigns.find((d) => d.name === row.selectedColor);
 
   return (
     <div className="border dark:border-gray-600 rounded-lg p-4 space-y-3 relative">
@@ -63,28 +64,28 @@ export function OrderItemRow({ row, index, products, showRemove, onUpdate, onRem
           ))}
         </select>
         <input type="hidden" name={`items[${index}][productId]`} value={String(row.productId || "")} />
-        <input type="hidden" name={`items[${index}][unitPrice]`} value={product?.basePrice ?? "0"} />
+        <input type="hidden" name={`items[${index}][unitPrice]`} value={selectedDesign?.price ?? "0"} />
         <input type="hidden" name={`items[${index}][discount]`} value="0" />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-            Color
+            Design
           </label>
           <select
             name={`items[${index}][selectedColor]`}
             value={row.selectedColor}
             onChange={(e) => onUpdate(index, "selectedColor", e.target.value)}
-            disabled={availableColors.length === 0}
+            disabled={availableDesigns.length === 0}
             className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:opacity-50"
           >
             <option value="">
-              {availableColors.length === 0 ? "Select a product first" : "Select color"}
+              {availableDesigns.length === 0 ? "Select a product first" : "Select design"}
             </option>
-            {availableColors.map((color) => (
-              <option key={color} value={color}>
-                {color.charAt(0).toUpperCase() + color.slice(1)}
+            {availableDesigns.map((d) => (
+              <option key={d.name} value={d.name}>
+                {d.name}{d.quantity <= 5 ? ` (${d.quantity} left)` : ""}
               </option>
             ))}
           </select>

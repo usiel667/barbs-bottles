@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { orders, customers, products, orderItems } from "@/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { orders, customers, products, orderItems, productDesigns } from "@/db/schema";
+import { eq, asc, inArray } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { OrderForm, ExistingItem } from "./OrderForm";
 
@@ -16,12 +16,28 @@ export default async function OrderFormPage({ searchParams }: Props) {
   if (orderId !== null && isNaN(orderId)) notFound();
 
   // Fetch supoorting data from the dropdowns
-  const [allCustomers, allProducts] = await Promise.all([
+  const [allCustomers, activeProducts] = await Promise.all([
     db.select().from(customers).orderBy(asc(customers.lastName)),
     db.select().from(products)
       .where(eq(products.active, true))
       .orderBy(asc(products.name)),
   ]);
+
+  const allDesigns = activeProducts.length > 0
+    ? await db.select().from(productDesigns).where(
+        inArray(productDesigns.productId, activeProducts.map((p) => p.id))
+      )
+    : [];
+  const designsByProduct = new Map<number, typeof allDesigns>();
+  for (const d of allDesigns) {
+    const list = designsByProduct.get(d.productId) ?? [];
+    list.push(d);
+    designsByProduct.set(d.productId, list);
+  }
+  const allProducts = activeProducts.map((p) => ({
+    ...p,
+    designs: designsByProduct.get(p.id) ?? [],
+  }));
 
   let order = null;
   let existingItems: ExistingItem[] = [];

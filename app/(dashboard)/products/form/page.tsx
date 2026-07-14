@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { products } from "@/db/schema";
+import { products, productDesigns } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ProductForm } from "./ProductForm";
@@ -16,6 +16,7 @@ export default async function ProductFormPage({ searchParams }: Props) {
   if (productId !== null && isNaN(productId)) notFound();
 
   let product = null;
+  let designs = undefined;
   if (productId !== null) {
     const result = await db
       .select()
@@ -25,7 +26,11 @@ export default async function ProductFormPage({ searchParams }: Props) {
 
     if (!result.length) notFound();
     product = result[0];
+    designs = await db
+      .select()
+      .from(productDesigns)
+      .where(eq(productDesigns.productId, productId));
   }
 
-  return <ProductForm product={product} />;
+  return <ProductForm product={product} designs={designs} />;
 }

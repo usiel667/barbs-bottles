@@ -4,12 +4,8 @@ import { z } from "zod";
 
 export const insertProductSchema = createInsertSchema(products, {
   name: (schema) => schema.min(1, "Product name is required"),
-  basePrice: (schema) => schema.refine((val) => parseFloat(val) > 0, {
-    message: "Base price must be greater than 0",
-  }),
-  colors: (schema) => schema.min(1, "At least one color must be specified"),
-
-})
+  series: (schema) => schema.min(1, "Series is required"),
+});
 
 export const selectProductSchema = createSelectSchema(products);
 
@@ -23,5 +19,3 @@ export const updateProductSchema = insertProductSchema.omit({
   updatedAt: true,
 });
 export type updateProductType = z.infer<typeof updateProductSchema>;
-
-

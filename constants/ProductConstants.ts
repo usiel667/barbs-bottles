@@ -1,16 +1,21 @@
 export const BottleSizes = [
-  { id: "12oz", description: "12 oz" },
-  { id: "16oz", description: "16 oz" },
-  { id: "20oz", description: "20 oz" },
+  { id: "6.7oz", description: "6.7 oz (Mini)" },
+  { id: "15oz", description: "15 oz" },
+  { id: "20oz", description: "20 oz (Tumbler)" },
   { id: "24oz", description: "24 oz" },
-  { id: "32oz", description: "32 oz" },
+  { id: "36oz", description: "36 oz" },
+  { id: "46oz", description: "46 oz" },
+  { id: "64oz", description: "64 oz (Half Gallon)" },
+  { id: "128oz", description: "128 oz (Gallon)" },
 ];
 
-export const BottleMaterials = [
-  { id: "stainless_steel", description: "Stainless Steel" },
-  { id: "plastic", description: "BPA-Free Plastic" },
-  { id: "glass", description: "Borosilicate Glass" },
-  { id: "aluminum", description: "Aluminum" },
+export const ProductSeries = [
+  { id: "Limitless Ultra v8", description: "Limitless Ultra v8" },
+  { id: "Limitless Gallon", description: "Limitless Gallon" },
+  { id: "Tumbler v2", description: "Tumbler v2" },
+  { id: "Mini", description: "Mini" },
+  { id: "Universal", description: "Universal" },
+  { id: "First Responder", description: "First Responder" },
 ];
 
 export const OrderStatuses = [
@@ -21,15 +26,4 @@ export const OrderStatuses = [
   { id: "shipped", description: "Shipped" },
   { id: "delivered", description: "Delivered" },
   { id: "cancelled", description: "Cancelled" },
-];
-
-export const AvailableColors = [
-  { id: "black", description: "Matte Black" },
-  { id: "white", description: "Pearl White" },
-  { id: "blue", description: "Ocean Blue" },
-  { id: "red", description: "Crimson Red" },
-  { id: "green", description: "Forest Green" },
-  { id: "purple", description: "Royal Purple" },
-  { id: "pink", description: "Rose Pink" },
-  { id: "orange", description: "Sunset Orange" },
 ];

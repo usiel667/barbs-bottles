@@ -8,6 +8,7 @@ import {
   text,
   decimal,
   pgEnum,
+  unique,
 } from "drizzle-orm/pg-core";
 
 import { relations } from "drizzle-orm";
@@ -25,19 +26,18 @@ export const OrderStatusEnum = pgEnum("order_status", [
 ]);
 
 export const bottleSizeEnum = pgEnum("bottle_size", [
-  "12oz",
-  "16oz",
+  "6.7oz",
+  "15oz",
   "20oz",
   "24oz",
-  "32oz"
-
+  "36oz",
+  "46oz",
+  "64oz",
+  "128oz"
 ]);
 
 export const bottleMaterialEnum = pgEnum("bottle_material", [
-  "stainless_steel",
-  "plastic",
-  "glass",
-  "aluminum"
+  "stainless_steel"
 ]);
 
 export const customers = pgTable("customers", {
@@ -62,19 +62,42 @@ export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
+  series: varchar("series", { length: 100 }).notNull(),
   size: bottleSizeEnum("size").notNull(),
-  material: bottleMaterialEnum("material").notNull(),
-  basePrice: decimal("base_price", { precision: 10, scale: 2 }).notNull(),
-  colors: text("colors").notNull(), // JSON array of available bottle colors
-  features: text("features"), // JSON array of features
-  // Design/Graphics support for custom bottles
-  designTemplate: text("design_template"), // URL to the design template/mockup
-  designPreview: text("design_preview"), // URL to design preview image
-  designVariations: text("design_variations"), // JSON array of design variation URLs
+  material: bottleMaterialEnum("material").notNull().default("stainless_steel"),
+  features: text("features"),
+  hasHandle: boolean("has_handle").notNull().default(false),
+  coldRetentionHours: integer("cold_retention_hours"),
+  hotRetentionHours: integer("hot_retention_hours"),
+  leakProof: boolean("leak_proof").notNull().default(false),
+  warranty: varchar("warranty", { length: 100 }).default("lifetime"),
+  rating: decimal("rating", { precision: 3, scale: 1 }),
+  reviewCount: integer("review_count"),
+  designTemplate: text("design_template"),
+  designPreview: text("design_preview"),
+  designVariations: text("design_variations"),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date()),
 });
+
+// Product Designs table — one row per named design/colorway of a product,
+// each with its own price/MSRP/stock/quantity (see markdown files/debugging/Bug_Fixes.md Fix 10)
+export const productDesigns = pgTable("product_designs", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  msrpPrice: decimal("msrp_price", { precision: 10, scale: 2 }),
+  inStock: boolean("in_stock").notNull().default(false),
+  quantity: integer("quantity").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date()),
+}, (table) => ({
+  uniqueDesignPerProduct: unique().on(table.productId, table.name),
+}));
 
 // Orders table
 export const orders = pgTable("orders", {
@@ -83,10 +106,10 @@ export const orders = pgTable("orders", {
     .notNull()
     .references(() => customers.id),
 
-  customDesignText: text("custom_design_text"), // Custom text for the design
-  customLogoUrl: text("custom_logo_url"), // Customer's logo/image URL
-  designNotes: text("design_notes"), // Internal design specifications
-  designProofUrl: text("design_proof_url"), // URL to approved design proof
+  customDesignText: text("custom_design_text"),
+  customLogoUrl: text("custom_logo_url"),
+  designNotes: text("design_notes"),
+  designProofUrl: text("design_proof_url"),
   status: OrderStatusEnum("status").notNull().default("pending"),
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
   estimatedDelivery: timestamp("estimated_delivery"),
@@ -96,7 +119,6 @@ export const orders = pgTable("orders", {
   updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
-// OrderItems table to handle multiple products in an order
 export const orderItems = pgTable("order_items", {
   id: serial("id").primaryKey(),
   orderId: integer("order_id")
@@ -106,12 +128,10 @@ export const orderItems = pgTable("order_items", {
     .notNull()
     .references(() => products.id),
   quantity: integer("quantity").notNull().default(1),
-  selectedColor: varchar("selected_color", { length: 50 }).notNull(),
+  selectedColor: varchar("selected_color", { length: 100 }).notNull(),
   unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
   discount: decimal("discount", { precision: 5, scale: 2 }).default("0"),
-
-}
-)
+});
 
 // Relations
 export const customerRelations = relations(customers, ({ many }) => ({
@@ -139,4 +159,12 @@ export const orderItemRelations = relations(orderItems, ({ one }) => ({
 
 export const productRelations = relations(products, ({ many }) => ({
   orders: many(orderItems),
+  designs: many(productDesigns),
+}));
+
+export const productDesignRelations = relations(productDesigns, ({ one }) => ({
+  product: one(products, {
+    fields: [productDesigns.productId],
+    references: [products.id],
+  }),
 }));

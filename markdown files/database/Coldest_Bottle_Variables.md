@@ -120,14 +120,14 @@ Different products come with different lid combinations:
 
 ### 7. Physical Attributes
 
-| Attribute | Notes |
-|---|---|
-| Has Handle | Limitless = Yes, Universal = No, Sports = No |
-| Non-slip Rubber Bottom | Yes (all models) |
-| Dimensions | 36oz Limitless: H-12.12" × W-2.6" |
-| Cirkul Compatible | Yes (wide mouth models: 14oz, 18oz, 24oz, 32oz, 40oz, 64oz, Universal, Limitless) |
-| Paracord Handle | Optional add-on ($12-$15) |
-| Attachable Minis | Yes (Limitless) |
+| Attribute              | Notes                                                                             |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| Has Handle             | Limitless = Yes, Universal = No, Sports = No                                      |
+| Non-slip Rubber Bottom | Yes (all models)                                                                  |
+| Dimensions             | 36oz Limitless: H-12.12" × W-2.6"                                                 |
+| Cirkul Compatible      | Yes (wide mouth models: 14oz, 18oz, 24oz, 32oz, 40oz, 64oz, Universal, Limitless) |
+| Paracord Handle        | Optional add-on ($12-$15)                                                         |
+| Attachable Minis       | Yes (Limitless)                                                                   |
 
 ### 8. Coating Type & Care
 
