@@ -2,6 +2,9 @@
 
 Reference notes on how `products` / `product_designs` are shaped in the database, and how the products list, add-product, and edit-product pages read and write them. Written while researching UI changes to `ProductForm.tsx` on `products-inventory-update`.
 
+Claude Code Diagram:
+https://claude.ai/code/artifact/781d0c72-b59a-4610-be02-f246fd31c803?via=auto_preview
+
 ## Schema
 
 ```mermaid
