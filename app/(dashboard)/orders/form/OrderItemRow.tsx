@@ -9,7 +9,10 @@ export type ItemRow = {
   quantity: number;
 };
 
-export type ProductWithDesigns = SelectProductType & { designs: SelectProductDesignType[] };
+export type ProductWithDesigns = SelectProductType & {
+  designs: SelectProductDesignType[];
+  size: string;
+};
 
 type Props = {
   row: ItemRow;

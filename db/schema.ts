@@ -25,20 +25,26 @@ export const OrderStatusEnum = pgEnum("order_status", [
   "canceled"
 ]);
 
-export const bottleSizeEnum = pgEnum("bottle_size", [
-  "6.7oz",
-  "15oz",
-  "20oz",
-  "24oz",
-  "36oz",
-  "46oz",
-  "64oz",
-  "128oz"
-]);
-
 export const bottleMaterialEnum = pgEnum("bottle_material", [
   "stainless_steel"
 ]);
+
+// Bottle Sizes lookup — replaces the fixed bottleSizeEnum so new sizes
+// can be added from the UI without a schema migration.
+export const bottleSizes = pgTable("bottle_sizes", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 20 }).notNull().unique(),
+  description: varchar("description", { length: 100 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Product Series lookup — replaces the free-text products.series column
+// so new series can be added from the UI and reused across products.
+export const productSeries = pgTable("product_series", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
 export const customers = pgTable("customers", {
   id: serial("id").primaryKey(),
@@ -62,8 +68,8 @@ export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  series: varchar("series", { length: 100 }).notNull(),
-  size: bottleSizeEnum("size").notNull(),
+  seriesId: integer("series_id").notNull().references(() => productSeries.id),
+  sizeId: integer("size_id").notNull().references(() => bottleSizes.id),
   material: bottleMaterialEnum("material").notNull().default("stainless_steel"),
   features: text("features"),
   hasHandle: boolean("has_handle").notNull().default(false),
@@ -157,9 +163,17 @@ export const orderItemRelations = relations(orderItems, ({ one }) => ({
   }),
 }));
 
-export const productRelations = relations(products, ({ many }) => ({
+export const productRelations = relations(products, ({ one, many }) => ({
   orders: many(orderItems),
   designs: many(productDesigns),
+  seriesRef: one(productSeries, {
+    fields: [products.seriesId],
+    references: [productSeries.id],
+  }),
+  sizeRef: one(bottleSizes, {
+    fields: [products.sizeId],
+    references: [bottleSizes.id],
+  }),
 }));
 
 export const productDesignRelations = relations(productDesigns, ({ one }) => ({
@@ -167,4 +181,12 @@ export const productDesignRelations = relations(productDesigns, ({ one }) => ({
     fields: [productDesigns.productId],
     references: [products.id],
   }),
+}));
+
+export const productSeriesRelations = relations(productSeries, ({ many }) => ({
+  products: many(products),
+}));
+
+export const bottleSizesRelations = relations(bottleSizes, ({ many }) => ({
+  products: many(products),
 }));

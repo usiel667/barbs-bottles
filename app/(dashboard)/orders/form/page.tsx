@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { orders, customers, products, orderItems, productDesigns } from "@/db/schema";
-import { eq, asc, inArray } from "drizzle-orm";
+import { orders, customers, products, orderItems, productDesigns, bottleSizes } from "@/db/schema";
+import { eq, asc, inArray, getTableColumns } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { OrderForm, ExistingItem } from "./OrderForm";
 
@@ -18,7 +18,9 @@ export default async function OrderFormPage({ searchParams }: Props) {
   // Fetch supoorting data from the dropdowns
   const [allCustomers, activeProducts] = await Promise.all([
     db.select().from(customers).orderBy(asc(customers.lastName)),
-    db.select().from(products)
+    db.select({ ...getTableColumns(products), size: bottleSizes.code })
+      .from(products)
+      .innerJoin(bottleSizes, eq(products.sizeId, bottleSizes.id))
       .where(eq(products.active, true))
       .orderBy(asc(products.name)),
   ]);

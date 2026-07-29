@@ -1,3 +1,6 @@
+// Seed data only — bottle_sizes is now the runtime source of truth (db/schema.ts).
+// Used by db/seed.ts to populate the lookup table; the Add Product form reads
+// from the DB, not this array.
 export const BottleSizes = [
   { id: "6.7oz", description: "6.7 oz (Mini)" },
   { id: "15oz", description: "15 oz" },
@@ -9,6 +12,9 @@ export const BottleSizes = [
   { id: "128oz", description: "128 oz (Gallon)" },
 ];
 
+// Seed data only — product_series is now the runtime source of truth (db/schema.ts).
+// Used by db/seed.ts to populate the lookup table; the Add Product form reads
+// from the DB, not this array.
 export const ProductSeries = [
   { id: "Limitless Ultra v8", description: "Limitless Ultra v8" },
   { id: "Limitless Gallon", description: "Limitless Gallon" },

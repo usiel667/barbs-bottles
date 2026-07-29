@@ -1,5 +1,6 @@
 import { db } from "./index";
-import { customers, products, orders, orderItems, productDesigns } from "./schema";
+import { customers, products, orders, orderItems, productDesigns, productSeries, bottleSizes } from "./schema";
+import { BottleSizes, ProductSeries } from "@/constants/ProductConstants";
 
 // Per-design price/MSRP/stock pulled from
 // markdown files/database/Coldest_Designs_Spreadsheet.md's "Detailed Pricing"
@@ -19,7 +20,13 @@ type DesignSeed = {
   quantity: number;
 };
 
-type ProductSeed = typeof products.$inferInsert & { designs: DesignSeed[] };
+// series/size are kept as plain strings here for readability; main() resolves
+// them to product_series/bottle_sizes lookup ids at insert time.
+type ProductSeed = Omit<typeof products.$inferInsert, "seriesId" | "sizeId"> & {
+  series: string;
+  size: string;
+  designs: DesignSeed[];
+};
 
 const productSeeds = [
   {
@@ -583,13 +590,31 @@ const productSeeds = [
 const main = async () => {
   console.log("Seeding database...");
 
+  await db.insert(productSeries).values(ProductSeries.map((s) => ({ name: s.id }))).onConflictDoNothing();
+  await db.insert(bottleSizes).values(BottleSizes.map((s) => ({ code: s.id, description: s.description }))).onConflictDoNothing();
+
+  const seriesIdByName = new Map(
+    (await db.select().from(productSeries)).map((s) => [s.name, s.id])
+  );
+  const sizeIdByCode = new Map(
+    (await db.select().from(bottleSizes)).map((s) => [s.code, s.id])
+  );
+
   const insertedProducts = await db
     .insert(products)
-    .values(productSeeds.map(({ designs, ...p }) => p))
-    .returning({ id: products.id, series: products.series, size: products.size });
+    .values(
+      productSeeds.map(({ designs, series, size, ...p }) => ({
+        ...p,
+        seriesId: seriesIdByName.get(series)!,
+        sizeId: sizeIdByCode.get(size)!,
+      }))
+    )
+    .returning({ id: products.id, seriesId: products.seriesId, sizeId: products.sizeId });
 
   const designRows = insertedProducts.flatMap((p) => {
-    const seed = productSeeds.find((s) => s.series === p.series && s.size === p.size)!;
+    const seed = productSeeds.find(
+      (s) => seriesIdByName.get(s.series) === p.seriesId && sizeIdByCode.get(s.size) === p.sizeId
+    )!;
     return seed.designs.map((d) => ({ ...d, productId: p.id }));
   });
   await db.insert(productDesigns).values(designRows);

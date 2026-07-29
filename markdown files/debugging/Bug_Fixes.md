@@ -687,3 +687,44 @@ await db.insert(productDesigns).values([
 - `inStock` (boolean) and `quantity` (int) are both stored on `product_designs` rather than deriving one from the other — kept as-is since it allows marking a design unavailable without losing its quantity count, but flagging in case that's not the intent.
 
 Nothing in `db/schema.ts` or elsewhere has been changed yet — this is a plan only.
+
+
+## NEW DESIGN INFO
+
+Products Page:
+1. the colums should be this: Design | series Avail | in stock | action
+2. for the rows of the designs it should be one row for each design with a drop down with all the series and sizes for that design.
+	1. there should be a edit button for design
+		1. this button takes us to a new page with editing for every version of that design.
+	2. still have edit button for each size and series of a design in the drop down
+		1. has its own page as well.  will explain that page in its own section(Edit design page)
+
+Add Product Page:
+1. Product Name: drop down with all current product names.  To the right  a Add Product Name button.
+2. Series: stays the same except has a add button to the right of it for a new series
+3. Size: stays the same except has a add button to the right of it for a new size
+4. keep add design button but only have the design fields populate if you click the add design button.
+5. everything else stays the same
+
+Edit design page:
+when you click on the edit button in the drop down for a design it shouldnt have a list of all designs in the edit page.
+1. this is its own page that opens when you click on the edit button on a design size / series in the drop down for that design.
+2. this page is for only that size / series of that design
+3. this is what should be on that page:
+	1. Product Name
+		1. a drop down of current products
+		2. a Add button to add a new prod name
+	2. Design Name
+		1. drop down of available designs
+	3. cold retention
+	4. hot retention
+	5. waranty
+	6. has handle
+	7. leak proof
+	8. where it says designs right now it should be this instead
+		1. Price | MSRP | Quantity
+	9. Active check box
+	10. at the bottom it should be these buttons
+		1. Update Design | Cancel
+		2. on the right hand side it should have a Remove button
+

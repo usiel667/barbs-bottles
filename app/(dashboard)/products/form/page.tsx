@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { products, productDesigns } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { products, productDesigns, productSeries, bottleSizes } from "@/db/schema";
+import { eq, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ProductForm } from "./ProductForm";
 
@@ -14,6 +14,13 @@ export default async function ProductFormPage({ searchParams }: Props) {
 
   //guard against non-numeric ?id values
   if (productId !== null && isNaN(productId)) notFound();
+
+  const [allSeries, allSizes, productNameRows] = await Promise.all([
+    db.select().from(productSeries).orderBy(asc(productSeries.name)),
+    db.select().from(bottleSizes).orderBy(asc(bottleSizes.id)),
+    db.selectDistinct({ name: products.name }).from(products).orderBy(asc(products.name)),
+  ]);
+  const productNames = productNameRows.map((r) => r.name);
 
   let product = null;
   let designs = undefined;
@@ -32,5 +39,13 @@ export default async function ProductFormPage({ searchParams }: Props) {
       .where(eq(productDesigns.productId, productId));
   }
 
-  return <ProductForm product={product} designs={designs} />;
+  return (
+    <ProductForm
+      product={product}
+      designs={designs}
+      allSeries={allSeries}
+      allSizes={allSizes}
+      productNames={productNames}
+    />
+  );
 }

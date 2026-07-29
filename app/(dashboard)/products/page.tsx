@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { products, productDesigns } from "@/db/schema";
+import { products, productDesigns, productSeries, bottleSizes } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,8 +11,9 @@ export default async function ProductsPage() {
   const rows = await db
     .select({
       productId: products.id,
-      series: products.series,
-      size: products.size,
+      productDesignId: productDesigns.id,
+      series: productSeries.name,
+      size: bottleSizes.code,
       active: products.active,
       designName: productDesigns.name,
       price: productDesigns.price,
@@ -22,16 +23,20 @@ export default async function ProductsPage() {
     })
     .from(products)
     .innerJoin(productDesigns, eq(productDesigns.productId, products.id))
+    .innerJoin(productSeries, eq(products.seriesId, productSeries.id))
+    .innerJoin(bottleSizes, eq(products.sizeId, bottleSizes.id))
     .orderBy(desc(products.createdAt));
 
   const groups = new Map<string, DesignGroup>();
   for (const row of rows) {
-    const key = `${row.series}::${row.designName}`;
+    const key = row.designName;
     if (!groups.has(key)) {
-      groups.set(key, { design: row.designName, series: row.series, variants: [] });
+      groups.set(key, { design: row.designName, variants: [] });
     }
     groups.get(key)!.variants.push({
       productId: row.productId,
+      productDesignId: row.productDesignId,
+      series: row.series,
       size: row.size,
       price: row.price,
       msrpPrice: row.msrpPrice,
@@ -41,7 +46,7 @@ export default async function ProductsPage() {
     });
   }
   const designGroups = Array.from(groups.values());
-  const seriesCount = new Set(designGroups.map((g) => g.series)).size;
+  const seriesCount = new Set(rows.map((r) => r.series)).size;
   const totalInStock = designGroups.reduce(
     (sum, g) => sum + g.variants.filter((v) => v.inStock).length,
     0
@@ -56,6 +61,9 @@ export default async function ProductsPage() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Products</h1>
           <p className="text-gray-600 dark:text-gray-300">
             {designGroups.length} design{designGroups.length !== 1 ? "s" : ""} · {seriesCount} series · {totalInStock} in stock
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Row Edit = price/stock across all series for a design · variant Edit = one design&apos;s fields · &quot;Manage Designs&quot; = add/remove designs on a series+size
           </p>
         </div>
         <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
@@ -83,15 +91,14 @@ export default async function ProductsPage() {
                 <tr>
                   <th className="px-4 py-3 w-8" />
                   <TableHeading label="Design" />
-                  <TableHeading label="Series" />
+                  <TableHeading label="Series Avail" />
                   <TableHeading label="In Stock" />
-                  <TableHeading label="Status" />
                   <TableHeading label="Action" align="right" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {designGroups.map((group) => (
-                  <ProductDesignRow key={`${group.series}::${group.design}`} group={group} />
+                  <ProductDesignRow key={group.design} group={group} />
                 ))}
               </tbody>
             </table>
@@ -102,12 +109,13 @@ export default async function ProductsPage() {
             {designGroups.map((group) => {
               const inStockCount = group.variants.filter((v) => v.inStock).length;
               const anyActive = group.variants.some((v) => v.active);
+              const seriesAvail = new Set(group.variants.map((v) => v.series)).size;
               return (
-                <div key={`${group.series}::${group.design}`} className="p-4 space-y-2">
+                <div key={group.design} className="p-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">{group.design}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{group.series}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{seriesAvail} series</p>
                     </div>
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${anyActive
                       ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
@@ -117,7 +125,7 @@ export default async function ProductsPage() {
                     </span>
                   </div>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    {inStockCount} of {group.variants.length} sizes in stock
+                    {inStockCount} of {group.variants.length} variants in stock
                   </p>
                 </div>
               );

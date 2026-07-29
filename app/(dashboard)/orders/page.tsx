@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { orders, customers, products, orderItems } from "@/db/schema";
+import { orders, customers, products, orderItems, bottleSizes } from "@/db/schema";
 import { desc, eq, inArray } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -31,10 +31,11 @@ export default async function OrdersPage() {
           unitPrice: orderItems.unitPrice,
           discount: orderItems.discount,
           productName: products.name,
-          productSize: products.size,
+          productSize: bottleSizes.code,
         })
         .from(orderItems)
         .innerJoin(products, eq(orderItems.productId, products.id))
+        .innerJoin(bottleSizes, eq(products.sizeId, bottleSizes.id))
         .where(inArray(orderItems.orderId, orderRows.map((o) => o.id)))
     : [];
 

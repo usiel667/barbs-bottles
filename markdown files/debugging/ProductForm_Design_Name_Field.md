@@ -55,3 +55,6 @@ Recorded as a memory (`product-design-name-field-decision`) so future edits to `
 ## Open question
 
 The original motivation still stands: does the Product Name field feel redundant next to the Series dropdown? If so, the fix isn't removing/renaming it — it's something that works with the fact that each product has many named designs (e.g. clarifying the label, or reconsidering what "Product Name" vs. design name each represent in this data model). Not yet resolved.
+
+
+
