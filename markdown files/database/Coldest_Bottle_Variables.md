@@ -7,6 +7,8 @@
 
 ## Current Schema vs Coldest Reality
 
+> **Update (2026-07-29):** `bottleSizeEnum` no longer exists — it's been replaced by a `bottle_sizes` lookup table (`db/schema.ts`), and `products.series` is now a FK to a `product_series` lookup table too, both seeded with the values below. New sizes/series can now be added from the Add Product page without a migration. See `markdown files/debugging/Products_Data_Model.md`.
+
 ### `bottleSizeEnum` — Needs Update
 
 **Current (incorrect):**

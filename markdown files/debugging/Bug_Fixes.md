@@ -691,6 +691,13 @@ Nothing in `db/schema.ts` or elsewhere has been changed yet — this is a plan o
 
 ## NEW DESIGN INFO
 
+> **Status: Implemented (2026-07-29).** Built as the spec-driven change `openspec/changes/product-design-catalog-restructure` (proposal, design, specs, tasks all complete; commit `7303eaf`). See `markdown files/debugging/Products_Data_Model.md` for the current schema/page-flow writeup. Summary of what shipped vs. this note:
+> - Products page: grouped by design name, columns `Design | Series Avail | In Stock | Action`, expandable to every series/size variant — as described below.
+> - Design-level Edit → new bulk design editor (`/products/design/[name]`) editing Price/MSRP/Quantity/Active for every variant of that design at once.
+> - Variant-level Edit (in the dropdown) → new single-variant editor (`/products/design-variant/[id]`) with the exact field set below (Product Name, Design Name, cold/hot retention, warranty, has handle, leak proof, Price/MSRP/Quantity, Active, Update/Cancel/Remove). Series/Size render read-only there, not editable.
+> - Add Product page: Product Name/Series/Size are now dropdowns with inline "Add" actions backed by new `product_series`/`bottle_sizes` lookup tables; design rows start empty until "Add Design" is clicked — matching every point below.
+> - The original Add/Edit product form (`/products/form?id=`) was kept rather than removed, narrowed to adding/removing designs on a product row and editing shared fields — reachable via a new "Manage Designs" link, since neither new page covers that.
+
 Products Page:
 1. the colums should be this: Design | series Avail | in stock | action
 2. for the rows of the designs it should be one row for each design with a drop down with all the series and sizes for that design.

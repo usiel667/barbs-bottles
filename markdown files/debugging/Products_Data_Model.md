@@ -5,16 +5,20 @@ Reference notes on how `products` / `product_designs` are shaped in the database
 Claude Code Diagram:
 https://claude.ai/code/artifact/781d0c72-b59a-4610-be02-f246fd31c803?via=auto_preview
 
+> **Update (2026-07-29):** `products.series`/`products.size` (shown as plain `varchar`/`enum` below) have been replaced by `seriesId`/`sizeId` FKs into new `product_series`/`bottle_sizes` lookup tables, and the products page/edit flows described below have been substantially restructured. See "Update: design-first catalog restructure" at the end of this doc for the current shape — the sections below are left as the original research notes.
+
 ## Schema
 
 ```mermaid
 erDiagram
     products ||--o{ product_designs : "productId, cascade delete"
+    product_series ||--o{ products : "seriesId"
+    bottle_sizes ||--o{ products : "sizeId"
     products {
         serial id PK
         varchar_255 name "not null"
-        varchar_100 series "not null"
-        enum size "not null"
+        integer seriesId FK "not null, references product_series"
+        integer sizeId FK "not null, references bottle_sizes"
         varchar material
         boolean hasHandle
         boolean leakProof
@@ -36,6 +40,17 @@ erDiagram
         timestamp createdAt
         timestamp updatedAt
     }
+    product_series {
+        serial id PK
+        varchar_100 name "not null, unique"
+        timestamp createdAt
+    }
+    bottle_sizes {
+        serial id PK
+        varchar_20 code "not null, unique"
+        varchar_100 description "not null"
+        timestamp createdAt
+    }
 ```
 
 ### `products` — one row per size/SKU
@@ -44,12 +59,14 @@ erDiagram
 |---|---|---|
 | `id` | serial | PK |
 | `name` | varchar(255) | not null |
-| `series` | varchar(100) | not null |
-| `size` | enum | not null |
-| `material`, `hasHandle`, `leakProof`, `coldRetentionHours`, `hotRetentionHours`, `warranty` | mixed | bottle spec fields |
+| `seriesId` | integer | FK → `product_series.id`, not null |
+| `sizeId` | integer | FK → `bottle_sizes.id`, not null |
+| `material`, `hasHandle`, `leakProof`, `coldRetentionHours`, `hotRetentionHours`, `warranty` | mixed | bottle spec fields — shared across every design on this product row |
 | `description`, `features`, `rating`, `reviewCount`, `designTemplate`, `designPreview`, `designVariations` | mixed | descriptive/display fields |
 | `active` | boolean | default `true` |
 | `createdAt` / `updatedAt` | timestamp | |
+
+`product_series` (`id`, `name` unique) and `bottle_sizes` (`id`, `code` unique, `description`) are small lookup tables — new series/sizes can be added from the Add Product page (or the single-variant editor) via an inline "Add" action, no migration required.
 
 Also referenced by `order_items.product_id` (out of scope here).
 
@@ -131,3 +148,21 @@ flowchart TD
 1. **Add and Edit are one component and one code path.** Both routes render `ProductForm.tsx` and share the same field-parsing/validation logic in `actions.ts` — a layout or field change made for one applies to both automatically.
 2. **Editing replaces, not patches, the design list.** Every save deletes all existing `product_designs` rows for that product and reinserts whatever the form currently holds. For a product with 79 designs, that's 79 rows round-tripped through the browser on every edit.
 3. **All 10 current products already have multiple designs** (4–79 each), so any form change that assumes "one design per product" would conflict with real, existing data.
+
+## Update: design-first catalog restructure (2026-07-29)
+
+Implemented as `openspec/changes/product-design-catalog-restructure`. The page flows above describe the original series-grouped model; this section covers what replaced it.
+
+**Products list (`/products`)** now groups by **design name alone**, not `series :: design.name` — one row per design, spanning every series it appears in. Columns: `Design | Series Avail | In Stock | Action`. Expanding a row lists every series/size variant (previously just size, since series was fixed per group).
+
+**Three edit surfaces now exist**, each with a narrower job than the old single `/products/form?id=` link:
+
+| Surface | Route | Scope |
+|---|---|---|
+| Bulk design editor | `/products/design/[name]` | Price/MSRP/Quantity/Active for every series/size variant of **one design**, saved together via `db.batch()` (the project's `neon-http` Drizzle driver has no `db.transaction()` support — confirmed in `node_modules/drizzle-orm/neon-http/session.js`, which throws `"No transactions support in neon-http driver"`). No add/remove-variant controls. |
+| Single-variant editor | `/products/design-variant/[id]` | One `product_designs` row: Product Name (dropdown + add), Design Name (dropdown, no free-text rename), the shared `products`-level fields (retention/warranty/handle/leak-proof — **editing these here silently applies to every sibling design on that product row**, since they're stored once per product), Price/MSRP/Quantity, Active. Series/Size shown read-only as page context. Has Update/Cancel/Remove (Remove also deletes the parent `products` row if it was the last design on it). |
+| `ProductForm` edit (`/products/form?id=`) | unchanged route | Kept specifically for adding a brand-new design/colorway to an existing product row, or editing shared fields with every sibling design visible at once — neither new page covers either case. Reachable via a "Manage Designs" link next to each variant. |
+
+**Add Product page (`/products/form`, no `id`)**: Product Name changed from free text to a dropdown of existing names + inline "Add Product Name"; Series and Size changed from the hardcoded `ProductConstants` arrays to dropdowns backed by the `product_series`/`bottle_sizes` lookup tables, each with an inline "Add" action (calls `createProductSeries`/`createBottleSize` in `actions.ts`, case-insensitive duplicate rejection). Design rows no longer pre-populate one blank row — they start empty until "Add Design" is clicked (edit flow is unaffected, still pre-fills from existing designs).
+
+A design whose variants are all set inactive stays listed (marked "Inactive", same `anyActive` logic as before) — it only disappears from the products page once its variants are actually deleted via the single-variant editor's Remove action, not just deactivated.

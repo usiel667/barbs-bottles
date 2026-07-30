@@ -1,5 +1,7 @@
 # Product Pages — Step-by-Step Coding Guide
 
+> **Update (2026-07-29):** This guide predates two later changes and no longer matches the live code: (1) the per-design pricing/stock model (`product_designs` table — a product now holds many named designs, each with its own price/MSRP/stock, not the single `price`/`colors` shown below), and (2) the design-first catalog restructure, which replaced `products.series`/`products.size` with `product_series`/`bottle_sizes` lookup tables and split editing across the products list, a bulk design editor, and a single-variant editor. See `markdown files/debugging/Products_Data_Model.md` and `openspec/changes/product-design-catalog-restructure/` for the current model and page flows. Kept below for historical reference.
+
 Mirrors the structure of [[Customer_Pages_Coding_Guide]] with product-specific differences called out clearly.
 
 **Files you will create/edit (in order):**

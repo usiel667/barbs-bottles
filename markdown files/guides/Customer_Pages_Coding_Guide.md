@@ -1,5 +1,7 @@
 # Customer Pages — Step-by-Step Coding Guide
 
+> **Update (2026-07-29):** `customers.email` and `customers.phone` are no longer required — both are nullable now, and their Zod validators are `.optional()` (still validated for format when a value is given). This is an admin-side relaxation since backend customer entry doesn't always have contact info on hand (e.g. walk-in/phone orders); the future public-facing site will still require both. The code below still shows both as required — see `app/(dashboard)/customers/actions.ts`, `zod-schema/customer.ts`, and `CustomerForm.tsx` for the current behavior.
+
 Based on Copilot PR #1 (`feat: add customers list and form pages`) with all review findings applied.
 
 **Files you will create/edit (in order):**

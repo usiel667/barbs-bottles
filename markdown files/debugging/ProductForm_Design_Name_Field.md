@@ -56,5 +56,15 @@ Recorded as a memory (`product-design-name-field-decision`) so future edits to `
 
 The original motivation still stands: does the Product Name field feel redundant next to the Series dropdown? If so, the fix isn't removing/renaming it — it's something that works with the fact that each product has many named designs (e.g. clarifying the label, or reconsidering what "Product Name" vs. design name each represent in this data model). Not yet resolved.
 
+## Update (2026-07-29)
+
+The redundancy concern is substantially addressed, though not by renaming the field. As part of `openspec/changes/product-design-catalog-restructure`:
+
+- **Product Name** changed from a free-text input to a dropdown of existing distinct product names (with an inline "Add Product Name" entry) — it now reads as "which product line/name is this," clearly distinct from Series (which line variant) and Design Name (which colorway), rather than a second freeform label sitting next to Series.
+- The products list itself moved to grouping by **design name**, with Series/Size shown as variant metadata rather than as the primary identity — so "Product Name" no longer competes with Series for top billing on that page either.
+- The per-row design `name` field (this doc's original subject) is unchanged and still required, per the original decision above.
+
+The field still isn't renamed to "Design Name," and the underlying three-way relationship between Product Name / Series / Design Name hasn't been formally redefined — so treat this as reduced friction, not full resolution.
+
 
 

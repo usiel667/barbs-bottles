@@ -1,5 +1,7 @@
 # Orders Pages — Step-by-Step Coding Guide
 
+> **Update (2026-07-29):** This guide predates the multi-item orders change (see [[multi-item-orders-implementation]] — `orders.quantity`/`selectedColor`/`productId` shown below now live on `order_items` instead) and the later products schema change (`products.size` no longer exists — it's `bottleSizes.code` via a join to the new `bottle_sizes` lookup table now). Kept for historical reference; see `markdown files/debugging/Products_Data_Model.md` for the current model.
+
 Follows the same structure as the Customer and Product guides. Orders are more complex because they have **foreign keys** to both customers and products, the color dropdown is dynamic (driven by whichever product is selected), and the list page requires database joins to show readable names.
 
 **Files you will create/edit (in order):**

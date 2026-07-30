@@ -13,14 +13,16 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Add `app/(dashboard)/error.tsx` Sentry error boundary — see [[Sentry_Setup]] ✅ 2026-05-05
 - [x] Fix active toggle always saving as inactive — change `get()` to `getAll().includes()` in `products/actions.ts:28` — see [[Bug_Fixes]] ✅ 2026-05-06
 - [x] Build orders pages — fix Zod schema, actions, form, list with joins — see [[Orders_Pages_Coding_Guide]] ✅ 2026-05-11
-- [ ] Add stock quantity to products — DB migration + 4 file changes — see [[Product_Pages_Coding_Guide]]
-- [ ] Coldest products schema update + inventory seed — update enums, add 10 new columns, rename colors→designs, seed 10 products with 121 designs — see [[Coldest_Products_Schema_Update]]
+- [x] Add stock quantity to products — DB migration + 4 file changes — see [[Product_Pages_Coding_Guide]] ✅ 2026-07-29
+- [x] Coldest products schema update + inventory seed — update enums, add 10 new columns, rename colors→designs, seed 10 products with 121 designs — see [[Coldest_Products_Schema_Update]] ✅ 2026-07-29
 - [x] Implement multi-item orders — add `order_items` table, push schema via `db:push`, updated actions/form/list with expandable rows and `OrderRow` — see [[multi-item-orders-implementation]] ✅ 2026-05-29
 - [x] Fix Edit buttons on products page — change to `bg-blue-600 hover:bg-blue-700 text-white` (lines 95, 120) — see [[UI_Issues_Design]] ✅ 2026-05-06
 - [x] Fix Add Product button text — add `text-white` (lines 25, 36) — see [[UI_Issues_Design]] ✅ 2026-05-06
 - [x] Fix typo in `products/actions.ts:25` — `desingTemplates` → `designTemplate` (data silently never saves) — see [[Bug_Fixes]] ✅ 2026-05-06
 - [x] Add try/catch to `createProduct` DB insert for constraint errors — see [[Bug_Fixes]] ✅ 2026-05-06
 - [x] Fix typo "Unathorized" in `customers/actions.ts:38` — see [[Bug_Fixes]] ✅ 2026-05-06
+- [x] Restructure products page around designs — design-first grouping, `product_series`/`bottle_sizes` lookup tables replacing free-text series + `bottleSizeEnum`, bulk design editor, single-variant editor — see [[Products_Data_Model]], `openspec/changes/product-design-catalog-restructure` ✅ 2026-07-29
+- [x] Make customer email/phone optional — admin-side contact entry doesn't always have both on hand — see [[Customer_Pages_Coding_Guide]], [[Bug_Fixes]] ✅ 2026-07-29
 ### Before Production
 - [ ] Lower `tracesSampleRate` from `1` to `0.1` in all three Sentry config files — see [[Sentry_Setup]]
 - [ ] Review `sendDefaultPii: true` for GDPR compliance — see [[Sentry_Setup]]
@@ -51,6 +53,8 @@ flowchart TD
         CUST_FORM["/customers/form\nform/page.tsx + CustomerForm.tsx"]
         PRODUCTS["/products\nproducts/page.tsx"]
         PROD_FORM["/products/form\nform/page.tsx + ProductForm.tsx"]
+        PROD_BULK["/products/design/[name]\nBulkDesignEditor.tsx"]
+        PROD_VARIANT["/products/design-variant/[id]\nSingleVariantEditor.tsx"]
         ORDERS["/orders\norders/page.tsx"]
         ORD_FORM["/orders/form\nform/page.tsx + OrderForm.tsx"]
     end
@@ -58,12 +62,16 @@ flowchart TD
     CUSTOMERS -->|?id param| CUST_FORM
     CUST_FORM -->|createCustomer / updateCustomer| CUST_ACTIONS["customers/actions.ts"]
     CUST_ACTIONS -->|insert / update| DB["Neon\nPostgres Database"]
-    PRODUCTS -->|?id param| PROD_FORM
+    PRODUCTS -->|?id param, or "Manage Designs" link| PROD_FORM
     PROD_FORM -->|createProduct / updateProduct| PROD_ACTIONS["products/actions.ts"]
     PROD_ACTIONS -->|insert / update| DB
+    PRODUCTS -->|design-level Edit| PROD_BULK
+    PROD_BULK -->|updateDesignVariants, db.batch| PROD_ACTIONS
+    PRODUCTS -->|variant-level Edit| PROD_VARIANT
+    PROD_VARIANT -->|updateProductDesignVariant / removeProductDesignVariant| PROD_ACTIONS
     HOME -->|getDashboardStats| DB
     CUSTOMERS -->|db.select| DB
-    PRODUCTS -->|db.select| DB
+    PRODUCTS -->|db.select, ⋈ product_series ⋈ bottle_sizes| DB
     ORDERS -->|?id param| ORD_FORM
     ORDERS -->|select orders+customers, inArray orderItems+products, grouped by orderId| DB
     ORD_FORM -->|createOrder / updateOrder| ORD_ACTIONS["orders/actions.ts"]
@@ -100,9 +108,11 @@ Step-by-step coding guides for building features.
 ## Debugging
 Logs of bugs encountered, their root cause, and how they were resolved.
 
-- [[Bug_Fixes]] — App-level bugs (login redirect, root page, post-login URL)
+- [[Bug_Fixes]] — App-level bugs (login redirect, root page, post-login URL), plus the "NEW DESIGN INFO" note that became the design-first catalog restructure
 - [[DataBase_Debug]] — Neon database connection and migration failures
 - [[Seed_Debug]] — Seed script schema mismatches
+- [[Products_Data_Model]] — `products`/`product_designs`/`product_series`/`bottle_sizes` schema and page-flow reference; current source of truth for the products data model
+- [[ProductForm_Design_Name_Field]] — Planning notes on the Product Name vs. Design Name field, and how the catalog restructure changed that
 
 ---
 

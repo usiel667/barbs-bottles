@@ -1,5 +1,7 @@
 # Multi-Item Orders Implementation Guide
 
+> **Update (2026-07-29):** The `products.size` field referenced in this guide's code snippets no longer exists as a column — it's been replaced by a `bottle_sizes` lookup table (`products.sizeId` → `bottleSizes.id`, joined to display `bottleSizes.code`). See `markdown files/debugging/Products_Data_Model.md` and `openspec/changes/product-design-catalog-restructure/` for the current schema. This guide otherwise still reflects the live `order_items` structure.
+
 This document describes every change needed to support multiple line items per order,
 matching the expandable-row design shown in the reference screenshot.
 

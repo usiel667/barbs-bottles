@@ -1,7 +1,9 @@
 # Coldest Products — Schema Update & Inventory Seed
 
 **Branch:** `products-inventory-update`  
-**Status:** In Progress (2026-06-15)
+**Status:** Complete — superseded by a later schema change (see note below)
+
+> **Update (2026-07-29):** `bottleSizeEnum` (shown below) and the `products.series` text column have since been replaced by `product_series`/`bottle_sizes` lookup tables — `products.size`/`products.series` no longer exist as columns; use `products.seriesId`/`products.sizeId` instead. This lets new series/sizes be added from the Add Product page without a migration. See `markdown files/debugging/Products_Data_Model.md` and `openspec/changes/product-design-catalog-restructure/` for the current schema and rationale. The code below is kept as-is for historical reference of this guide's original migration.
 
 Updates the products schema to match Coldest's real product catalog, then seeds the database with all 10 product lines and their designs.
 

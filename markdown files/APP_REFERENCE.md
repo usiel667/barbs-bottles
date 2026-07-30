@@ -29,21 +29,25 @@ Quick-navigation index of every major constant, schema, type, function, and conf
 
 | Table | Key Fields |
 |-------|-----------|
-| `customers` | id, firstName, lastName, email, phone, address1, address2, city, state, zipCode, notes, active, createdAt, updatedAt |
-| `products` | id, name, description, series, size, material, features, hasHandle, coldRetentionHours, hotRetentionHours, leakProof, warranty, rating, reviewCount, designTemplate, designPreview, designVariations, active, createdAt, updatedAt |
+| `customers` | id, firstName, lastName, email (unique, **nullable**), phone (**nullable**), address1, address2, city, state, zipCode, notes, active, createdAt, updatedAt |
+| `products` | id, name, description, seriesId (FK → product_series), sizeId (FK → bottle_sizes), material, features, hasHandle, coldRetentionHours, hotRetentionHours, leakProof, warranty, rating, reviewCount, designTemplate, designPreview, designVariations, active, createdAt, updatedAt |
 | `product_designs` | id, productId (FK → products, cascade), name, price, msrpPrice, inStock, quantity, createdAt, updatedAt — **one row per named design/colorway**, `unique(productId, name)` |
+| `product_series` | id, name (unique), createdAt — lookup table; new series added via the Add Product page or single-variant editor, no migration needed |
+| `bottle_sizes` | id, code (unique), description, createdAt — lookup table; new sizes added the same way |
 | `orders` | id, customerId, customDesignText, customLogoUrl, designNotes, designProofUrl, status, totalPrice, estimatedDelivery, trackingNumber, assignedTo, createdAt, updatedAt |
 | `order_items` | id, orderId (FK → orders, cascade), productId (FK → products), quantity, selectedColor, unitPrice, discount |
 
-A product no longer has one price — pricing/stock live per-design in `product_designs`, and an order no longer has one product/quantity/color — those live per-line-item in `order_items`. See `markdown files/debugging/Products_Data_Model.md` for the full products ⋈ product_designs data flow.
+A product no longer has one price — pricing/stock live per-design in `product_designs`, and an order no longer has one product/quantity/color — those live per-line-item in `order_items`. `products.series`/`products.size` were replaced by `seriesId`/`sizeId` FKs into the two lookup tables above (was a free-text column + a Postgres enum). See `markdown files/debugging/Products_Data_Model.md` for the full data model and page-flow writeup.
 
 **Relations:**
 
 | Name | Description |
 |------|-------------|
 | `customerRelations` | customers → many orders |
-| `productRelations` | products → many orderItems, many productDesigns |
+| `productRelations` | products → many orderItems, many productDesigns, one productSeries (`seriesRef`), one bottleSize (`sizeRef`) |
 | `productDesignRelations` | productDesigns → one product |
+| `productSeriesRelations` | productSeries → many products |
+| `bottleSizesRelations` | bottleSizes → many products |
 | `orderRelations` | orders → one customer, many orderItems |
 | `orderItemRelations` | orderItems → one order, one product |
 
@@ -56,8 +60,9 @@ A product no longer has one price — pricing/stock live per-design in `product_
 | Name | Values |
 |------|--------|
 | `OrderStatusEnum` | `pending`, `design`, `production`, `quality_check`, `shipped`, `delivered`, `canceled` |
-| `bottleSizeEnum` | `6.7oz`, `15oz`, `20oz`, `24oz`, `36oz`, `46oz`, `64oz`, `128oz` |
 | `bottleMaterialEnum` | `stainless_steel` |
+
+`bottleSizeEnum` no longer exists — bottle sizes are now rows in the `bottle_sizes` lookup table (see Database Tables above), not a fixed Postgres enum.
 
 ---
 
@@ -74,6 +79,8 @@ Each constant is an array of `{ id: string, description: string }` objects.
 | `OrderStatuses` | pending, designing, production, quality_check, shipped, delivered, cancelled |
 
 `AvailableColors` and `BottleMaterials` no longer exist — colors are now per-design `name` values on `product_designs`, and material is fixed to `stainless_steel`.
+
+`BottleSizes` and `ProductSeries` are **seed data only** — they seed the `bottle_sizes`/`product_series` lookup tables (`db/seed.ts`) but are no longer the runtime source of truth for the Add Product page's dropdowns; those read from the DB tables directly.
 
 ---
 
@@ -93,7 +100,7 @@ Each constant is an array of `{ id: string, description: string }` objects.
 
 | Name | Kind | Notes |
 |------|------|-------|
-| `insertCustomerSchema` | Zod schema | firstName, lastName, address1, city, state (2 chars), email, zipCode (5-digit), phone |
+| `insertCustomerSchema` | Zod schema | firstName, lastName, address1, city, state (2 chars), zipCode (5-digit); email and phone are `.optional()` — validated for format only when provided, not required |
 | `InsertCustomerType` | Type | Inferred from `insertCustomerSchema` |
 | `selectCustomerSchema` | Zod schema | For querying customer records |
 | `SelectCustomerType` | Type | Inferred from `selectCustomerSchema` |
@@ -115,7 +122,7 @@ Each constant is an array of `{ id: string, description: string }` objects.
 
 | Name | Kind | Notes |
 |------|------|-------|
-| `insertProductSchema` | Zod schema | name (min 1), series (min 1) |
+| `insertProductSchema` | Zod schema | name (min 1), seriesId (required, > 0), sizeId (required, > 0) |
 | `InsertProductType` | Type | Inferred from `insertProductSchema` |
 | `selectProductSchema` | Zod schema | For querying product records |
 | `SelectProductType` | Type | Inferred from `selectProductSchema` |
@@ -131,6 +138,22 @@ Each constant is an array of `{ id: string, description: string }` objects.
 | `selectProductDesignSchema` | Zod schema | For querying design records |
 | `InsertProductDesignType` | Type | Inferred from `insertProductDesignSchema` |
 | `SelectProductDesignType` | Type | Inferred from `selectProductDesignSchema` |
+
+> `zod-schema/productSeries.ts`
+
+| Name | Kind | Notes |
+|------|------|-------|
+| `insertProductSeriesSchema` | Zod schema | name (min 1) |
+| `selectProductSeriesSchema` | Zod schema | For querying series lookup rows |
+| `InsertProductSeriesType` / `SelectProductSeriesType` | Type | Inferred types |
+
+> `zod-schema/bottleSize.ts`
+
+| Name | Kind | Notes |
+|------|------|-------|
+| `insertBottleSizeSchema` | Zod schema | code (min 1), description (min 1) |
+| `selectBottleSizeSchema` | Zod schema | For querying size lookup rows |
+| `InsertBottleSizeType` / `SelectBottleSizeType` | Type | Inferred types |
 
 ---
 
@@ -168,6 +191,11 @@ Each constant is an array of `{ id: string, description: string }` objects.
 |----------|-----------|-------------|
 | `createProduct` | `(_prevState: FormState, formData: FormData)` | Creates a product + its designs; validates auth, parses top-level fields via `parseFormData()` and `designs[i][...]` rows via `parseDesignRows()`/`validateDesignRows()` (rejects empty/duplicate design names) |
 | `updateProduct` | `(id: number, _prevState: FormState, formData: FormData)` | Updates a product by id; deletes and reinserts all `product_designs` for that product (full replace, not a diff) |
+| `createProductSeries` | `(name: string)` | Inserts a new `product_series` row; case-insensitive duplicate-name rejection; used by the Add Product page's inline "Add" for Series |
+| `createBottleSize` | `(code: string, description: string)` | Inserts a new `bottle_sizes` row; same duplicate rejection, used by the Size "Add" |
+| `updateDesignVariants` | `(updates: VariantUpdate[])` | Bulk design editor's save action — updates Price/MSRP/Quantity/Active for every variant in one `db.batch()` call (all-or-nothing; `neon-http` has no `db.transaction()`) |
+| `updateProductDesignVariant` | `(productDesignId: number, _prevState: FormState, formData: FormData)` | Single-variant editor's save action — updates the shared `products` row fields and the one `product_designs` row |
+| `removeProductDesignVariant` | `(productDesignId: number)` | Deletes one `product_designs` row; also deletes the parent `products` row if no other designs reference it |
 
 **Shared type:**
 
@@ -183,11 +211,13 @@ type FormState = { errors?: Record<string, string[]> } | null
 
 | File | Kind | Description |
 |------|------|-------------|
-| `page.tsx` | Server Component | Products list — `products ⋈ product_designs`, grouped in memory by `series::design.name` into expandable `DesignGroup` rows; desktop table + mobile cards |
-| `ProductDesignRow.tsx` | Client Component | One expandable design row; expands to show per-size variant sub-table, each linking to `/products/form?id={productId}` |
-| `actions.ts` | Server Actions | `createProduct`, `updateProduct` |
-| `form/page.tsx` | Server Component | Reads `?id` param, fetches product + its `product_designs` if editing, renders `ProductForm` |
-| `form/ProductForm.tsx` | Client Component | Add/edit form for a product **and** its design rows in one submit; uses `useActionState` + local `designRows` state (add/remove/update); drives size/series dropdowns from `BottleSizes`, `ProductSeries` |
+| `page.tsx` | Server Component | Products list — `products ⋈ product_designs ⋈ product_series ⋈ bottle_sizes`, grouped in memory by **design name alone** into expandable `DesignGroup` rows; columns `Design \| Series Avail \| In Stock \| Action`; desktop table + mobile cards |
+| `ProductDesignRow.tsx` | Client Component | One expandable design row with a top-level "Edit" → bulk design editor; expands to show every series/size variant, each with its own "Edit" → single-variant editor, plus a "Manage Designs" link → `/products/form?id={productId}` |
+| `actions.ts` | Server Actions | `createProduct`, `updateProduct`, `createProductSeries`, `createBottleSize`, `updateDesignVariants`, `updateProductDesignVariant`, `removeProductDesignVariant` |
+| `form/page.tsx` | Server Component | Reads `?id` param, fetches product + its `product_designs` if editing, plus `product_series`/`bottle_sizes` lookup lists and distinct product names, renders `ProductForm` |
+| `form/ProductForm.tsx` | Client Component | Add/edit form for a product **and** its design rows in one submit; uses `useActionState` + local `designRows` state (add/remove/update, starts empty on create); Product Name/Series/Size are dropdowns backed by the DB with inline "Add" actions (Series/Size call `createProductSeries`/`createBottleSize`) |
+| `design/[name]/page.tsx` + `BulkDesignEditor.tsx` | Server + Client | Bulk design editor — every series/size variant of one design in an editable table (Price/MSRP/Quantity/Active), saved together via `updateDesignVariants` |
+| `design-variant/[id]/page.tsx` + `SingleVariantEditor.tsx` | Server + Client | Single-variant editor — one `product_designs` row + its shared `products` fields; Series/Size read-only context; Update/Cancel/Remove |
 
 Full schema/flow detail: `markdown files/debugging/Products_Data_Model.md`.
 
