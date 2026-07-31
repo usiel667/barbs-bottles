@@ -33,6 +33,33 @@ export type ExistingItem = {
   productId: number;
   selectedColor: string;
   quantity: number;
+  discount: string | null;
+};
+
+export type ShippingAddress = {
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  zipCode: string;
+};
+
+function addressFromCustomer(customer: SelectCustomerType): ShippingAddress {
+  return {
+    address1: customer.address1,
+    address2: customer.address2 ?? "",
+    city: customer.city,
+    state: customer.state,
+    zipCode: customer.zipCode,
+  };
+}
+
+export type DesignFieldsState = {
+  estimatedDelivery: string;
+  assignedTo: string;
+  customDesignText: string;
+  designNotes: string;
+  customLogoUrl: string;
 };
 
 type Props = {
@@ -45,15 +72,68 @@ type Props = {
 export function OrderForm({ order, existingItems, customers, products }: Props) {
   const isEditing = Boolean(order);
 
+  // Customer, Status, and the fields below are kept as controlled React
+  // state (rather than defaultValue) because React 19 automatically resets
+  // every *uncontrolled* form field on every submit attempt — success or
+  // failure (see requestFormReset in react-dom) — which was wiping these
+  // fields back to their original value on every Update/Create click or
+  // Enter keypress. Controlled fields are re-synced from state instead and
+  // aren't affected.
+  const [customerId, setCustomerId] = useState<number | "">(order?.customerId ?? "");
+  const [status, setStatus] = useState<string>(order?.status ?? "pending");
+
+  const deliveryDefault = order?.estimatedDelivery
+    ? new Date(order.estimatedDelivery).toISOString().split("T")[0]
+    : "";
+  const [designFields, setDesignFields] = useState<DesignFieldsState>({
+    estimatedDelivery: deliveryDefault,
+    assignedTo: order?.assignedTo ?? "",
+    customDesignText: order?.customDesignText ?? "",
+    designNotes: order?.designNotes ?? "",
+    customLogoUrl: order?.customLogoUrl ?? "",
+  });
+
+  function updateDesignField(field: keyof DesignFieldsState, value: string) {
+    setDesignFields((f) => ({ ...f, [field]: value }));
+  }
+
+  function handleFormKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
+    // Prevent Enter in any field (other than a textarea, where it should
+    // insert a newline) from prematurely submitting this multi-field form.
+    if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") {
+      e.preventDefault();
+    }
+  }
+
   const [itemRows, setItemRows] = useState<ItemRow[]>(
     existingItems.length > 0
       ? existingItems.map((item) => ({
         productId: item.productId,
         selectedColor: item.selectedColor,
         quantity: item.quantity,
+        discount: item.discount ?? "0",
       }))
-      : [{ productId: "", selectedColor: "", quantity: 1 }]
+      : [{ productId: "", selectedColor: "", quantity: 1, discount: "0" }]
   );
+
+  const [shipping, setShipping] = useState<ShippingAddress>({
+    address1: order?.shippingAddress1 ?? "",
+    address2: order?.shippingAddress2 ?? "",
+    city: order?.shippingCity ?? "",
+    state: order?.shippingState ?? "",
+    zipCode: order?.shippingZipCode ?? "",
+  });
+
+  function handleCustomerChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const newCustomerId = e.target.value ? Number(e.target.value) : "";
+    setCustomerId(newCustomerId);
+    const customer = customers.find((c) => c.id === newCustomerId);
+    if (customer) setShipping(addressFromCustomer(customer));
+  }
+
+  function updateShippingField(field: keyof ShippingAddress, value: string) {
+    setShipping((s) => ({ ...s, [field]: value }));
+  }
 
   function updateItem(index: number, field: keyof ItemRow, value: string | number) {
     setItemRows((rows) =>
@@ -66,7 +146,7 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
   }
 
   function addItem() {
-    setItemRows((rows) => [...rows, { productId: "", selectedColor: "", quantity: 1 }]);
+    setItemRows((rows) => [...rows, { productId: "", selectedColor: "", quantity: 1, discount: "0" }]);
   }
 
   function removeItem(index: number) {
@@ -75,10 +155,6 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
 
   const action = isEditing ? updateOrder.bind(null, order!.id) : createOrder;
   const [state, formAction, isPending] = useActionState<FormState, FormData>(action, null);
-
-  const deliveryDefault = order?.estimatedDelivery
-    ? new Date(order.estimatedDelivery).toISOString().split("T")[0]
-    : "";
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -91,7 +167,7 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
         </Button>
       </div>
 
-      <form action={formAction} className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
+      <form action={formAction} onKeyDown={handleFormKeyDown} className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
 
         {/* Customer */}
         <div>
@@ -100,7 +176,8 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
           </label>
           <select
             name="customerId"
-            defaultValue={order?.customerId ?? ""}
+            value={customerId}
+            onChange={handleCustomerChange}
             className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
             <option value="">Select customer</option>
@@ -143,7 +220,8 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
           </label>
           <select
             name="status"
-            defaultValue={order?.status ?? "pending"}
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
             className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
             {ORDER_STATUSES.map((s) => (
@@ -153,7 +231,13 @@ export function OrderForm({ order, existingItems, customers, products }: Props) 
           <FieldError errors={state?.errors?.status} />
         </div>
 
-        <OrderDesignFields order={order} deliveryDefault={deliveryDefault} />
+        <OrderDesignFields
+          designFields={designFields}
+          onDesignFieldChange={updateDesignField}
+          shipping={shipping}
+          onShippingFieldChange={updateShippingField}
+          errors={state?.errors}
+        />
 
         {/* Submit */}
         <div className="flex gap-3 pt-2">

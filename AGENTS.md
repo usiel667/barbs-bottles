@@ -7,7 +7,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **barbs-bottles** (935 symbols, 1153 relationships, 22 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **barbs-bottles** (937 symbols, 1155 relationships, 22 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

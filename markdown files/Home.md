@@ -23,6 +23,11 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix typo "Unathorized" in `customers/actions.ts:38` — see [[Bug_Fixes]] ✅ 2026-05-06
 - [x] Restructure products page around designs — design-first grouping, `product_series`/`bottle_sizes` lookup tables replacing free-text series + `bottleSizeEnum`, bulk design editor, single-variant editor — see [[Products_Data_Model]], `openspec/changes/product-design-catalog-restructure` ✅ 2026-07-29
 - [x] Make customer email/phone optional — admin-side contact entry doesn't always have both on hand — see [[Customer_Pages_Coding_Guide]], [[Bug_Fixes]] ✅ 2026-07-29
+- [x] Fix stock not decrementing when an order is placed/edited — `orders/actions.ts` never touched `product_designs.quantity` — see [[Bug_Fixes]] ✅ 2026-07-29
+- [x] Fix Design field blank when editing an order whose design has since sold out — `OrderItemRow.tsx` filtered it out of its own dropdown — see [[Bug_Fixes]] ✅ 2026-07-30
+- [x] Add shipping address + per-item discount fields to the order form — see [[UI_Issues_Design]] ✅ 2026-07-30
+- [x] Fix Edit Order form fields resetting on Enter/Update (React 19 auto-resets uncontrolled fields on every form submit) — see [[Bug_Fixes]] ✅ 2026-07-30
+- [x] Fix 100% discount silently failing to save an order — `totalPrice` validator required `> 0`, rejecting legitimate $0.00 orders with no visible error — see [[Bug_Fixes]] ✅ 2026-07-30
 ### Before Production
 - [ ] Lower `tracesSampleRate` from `1` to `0.1` in all three Sentry config files — see [[Sentry_Setup]]
 - [ ] Review `sendDefaultPii: true` for GDPR compliance — see [[Sentry_Setup]]

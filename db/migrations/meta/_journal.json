@@ -36,6 +36,20 @@
       "when": 1785295919085,
       "tag": "0004_customer_email_phone_optional",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785382448045,
+      "tag": "0005_order_shipping_address",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785384078088,
+      "tag": "0006_order_shipping_address_fields",
+      "breakpoints": true
     }
   ]
 }

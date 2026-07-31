@@ -7,6 +7,7 @@ export type ItemRow = {
   productId: number | "";
   selectedColor: string;
   quantity: number;
+  discount: string;
 };
 
 export type ProductWithDesigns = SelectProductType & {
@@ -25,15 +26,25 @@ type Props = {
 
 function getDesignsForProduct(
   products: ProductWithDesigns[],
-  productId: number | ""
+  productId: number | "",
+  selectedColor: string
 ): SelectProductDesignType[] {
   if (!productId) return [];
   const product = products.find((p) => p.id === Number(productId));
-  return product?.designs.filter((d) => d.inStock) ?? [];
+  if (!product) return [];
+  const inStockDesigns = product.designs.filter((d) => d.inStock);
+  // Keep the currently selected design in the list even if it's since gone
+  // out of stock, so editing an existing order doesn't blank the Design
+  // field or silently zero out unitPrice (Bug 12).
+  if (selectedColor && !inStockDesigns.some((d) => d.name === selectedColor)) {
+    const current = product.designs.find((d) => d.name === selectedColor);
+    if (current) return [current, ...inStockDesigns];
+  }
+  return inStockDesigns;
 }
 
 export function OrderItemRow({ row, index, products, showRemove, onUpdate, onRemove }: Props) {
-  const availableDesigns = getDesignsForProduct(products, row.productId);
+  const availableDesigns = getDesignsForProduct(products, row.productId, row.selectedColor);
   const selectedDesign = availableDesigns.find((d) => d.name === row.selectedColor);
 
   return (
@@ -68,7 +79,6 @@ export function OrderItemRow({ row, index, products, showRemove, onUpdate, onRem
         </select>
         <input type="hidden" name={`items[${index}][productId]`} value={String(row.productId || "")} />
         <input type="hidden" name={`items[${index}][unitPrice]`} value={selectedDesign?.price ?? "0"} />
-        <input type="hidden" name={`items[${index}][discount]`} value="0" />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -88,7 +98,7 @@ export function OrderItemRow({ row, index, products, showRemove, onUpdate, onRem
             </option>
             {availableDesigns.map((d) => (
               <option key={d.name} value={d.name}>
-                {d.name}{d.quantity <= 5 ? ` (${d.quantity} left)` : ""}
+                {d.name}{!d.inStock ? " (out of stock)" : d.quantity <= 5 ? ` (${d.quantity} left)` : ""}
               </option>
             ))}
           </select>
@@ -108,6 +118,22 @@ export function OrderItemRow({ row, index, products, showRemove, onUpdate, onRem
             className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
         </div>
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+          Discount %
+        </label>
+        <input
+          type="number"
+          name={`items[${index}][discount]`}
+          min="0"
+          max="100"
+          step="0.01"
+          value={row.discount}
+          onChange={(e) => onUpdate(index, "discount", e.target.value)}
+          className="w-full border rounded-md px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        />
       </div>
     </div>
   );

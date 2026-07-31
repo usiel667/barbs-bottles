@@ -116,6 +116,14 @@ export const orders = pgTable("orders", {
   customLogoUrl: text("custom_logo_url"),
   designNotes: text("design_notes"),
   designProofUrl: text("design_proof_url"),
+  // Shipping address — mirrors customers.address1/address2/city/state/zipCode
+  // so the order form can reuse the same layout; auto-filled from the
+  // selected customer's address, editable/overridable afterward.
+  shippingAddress1: varchar("shipping_address1", { length: 255 }).notNull(),
+  shippingAddress2: varchar("shipping_address2", { length: 255 }),
+  shippingCity: varchar("shipping_city", { length: 100 }).notNull(),
+  shippingState: varchar("shipping_state", { length: 2 }).notNull(),
+  shippingZipCode: varchar("shipping_zip_code", { length: 10 }).notNull(),
   status: OrderStatusEnum("status").notNull().default("pending"),
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
   estimatedDelivery: timestamp("estimated_delivery"),

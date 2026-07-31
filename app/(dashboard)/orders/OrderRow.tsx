@@ -105,7 +105,7 @@ export function OrderRow({ order, items }: Props) {
                 <tr className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase border-b dark:border-gray-700">
                   <th className="pb-2 text-left">Product</th>
                   <th className="pb-2 text-left">Size</th>
-                  <th className="pb-2 text-left">Color</th>
+                  <th className="pb-2 text-left">Design</th>
                   <th className="pb-2 text-right">Unit Price</th>
                   <th className="pb-2 text-right">Qty</th>
                   <th className="pb-2 text-right">Disc.</th>

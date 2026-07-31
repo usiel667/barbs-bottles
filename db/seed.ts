@@ -654,6 +654,10 @@ const main = async () => {
       status: "design",
       totalPrice: "49.98",
       assignedTo: "designer@example.com",
+      shippingAddress1: "123 Fitness Ave",
+      shippingCity: "Austin",
+      shippingState: "TX",
+      shippingZipCode: "78701",
     },
     {
       customerId: customerIds[1].id,
@@ -662,6 +666,10 @@ const main = async () => {
       status: "production",
       totalPrice: "999.50",
       assignedTo: "production@example.com",
+      shippingAddress1: "456 Wellness St",
+      shippingCity: "San Francisco",
+      shippingState: "CA",
+      shippingZipCode: "94105",
     },
   ]).returning({ id: orders.id });
 

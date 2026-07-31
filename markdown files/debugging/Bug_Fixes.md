@@ -735,3 +735,51 @@ when you click on the edit button in the drop down for a design it shouldnt have
 		1. Update Design | Cancel
 		2. on the right hand side it should have a Remove button
 
+
+## Bug 11 — Placing/editing an order never adjusts product_designs stock ✅ 2026-07-29
+
+When an order is put in, the stock of said product is not changing to correspond to the new amount in stock.
+
+Example: Michelle Reurink has a Reader Ultra 20oz in her order but the products page says there is still 1 in inventory.
+
+**File:** `app/(dashboard)/orders/actions.ts`
+
+**Root cause:** `createOrder` and `updateOrder` insert/replace rows in `order_items` but never touched `product_designs.quantity`/`inStock` — confirmed by reading both functions, no stock-adjusting code existed anywhere in the order-save path.
+
+**Fix:** Added a shared `reconcileStock(oldItems, newItems)` helper, matching each order line item to its `product_designs` row via `(productId, selectedColor)` (the design name — `order_items` has no design FK). It aggregates requested quantity per design, validates against `current stock + whatever this same order already had reserved` (so editing an unchanged line item doesn't get rejected), and returns a validation error under `errors.items` if a design doesn't have enough stock (surfaced via the existing `<FieldError errors={state?.errors?.items} />` in `OrderForm.tsx` — no UI changes needed). On success, stock updates are written via `db.batch()` (the project's `neon-http` driver has no `db.transaction()` support). `createOrder` passes `oldItems: []`; `updateOrder` passes the order's existing `order_items` as `oldItems` so its own prior reservation is added back before re-checking the new amounts.
+
+**Decisions made:** stock decrements for orders in any status (not gated by e.g. "production" only); insufficient stock blocks the save with a validation error rather than allowing negative quantity.
+
+## Bug 12 — Design field blank when editing an order whose design sold out ✅ 2026-07-30
+
+In orders when i go to Mechille's order it shows 2 reader ultras in her order when there was only 1 that was in stock.  also when i go into edit the order it isnt showing the design in the design field.
+
+**File:** `app/(dashboard)/orders/form/OrderItemRow.tsx`
+
+**Root cause (Design field blank):** `getDesignsForProduct` filtered the Design dropdown to `d.inStock` designs only. Confirmed against order 9 (Michelle Reurink): its design "Reader Ultra" (`product_designs.id 821`) now has `quantity: 0, inStock: false`, so the dropdown had no `<option>` matching the order's `selectedColor` and rendered blank. Worse, `selectedDesign` (derived from the same filtered list) also resolved to `undefined`, so the hidden `unitPrice` field silently fell back to `"0"` — re-saving the order without touching that field would have zeroed its price.
+
+**Fix:** `getDesignsForProduct` now always keeps the currently selected design in its returned list even if it's since gone out of stock (labeled "(out of stock)" instead of being hidden), so the field stays populated and the price stays correct.
+
+**"2 Reader Ultras when only 1 was in stock":** not a separate code bug — order 9 has two separate `order_items` rows (qty 1 each) for the same design, not one row at qty 2, confirmed by querying the DB directly. This order predates the [[Bug_Fixes|Bug 11]] stock-validation fix, so its total reservation was never checked against available stock when created. Going forward, [[Bug_Fixes|Bug 11]]'s `reconcileStock` blocks over-committing; this specific historical order's data wasn't retroactively corrected — flagged for a manual decision on whether to adjust it.
+
+## Bug 13 — Edit Order form fields reset on Enter/Update, only Quantity survives ✅ 2026-07-30
+
+In the edit order form: entering a Discount % value and hitting Enter resets the item fields completely (Product/Design go blank); Quantity stays. Clicking off the Discount field after typing a value: nothing sticks. Clicking Update does the same reset.
+
+**Files:** `app/(dashboard)/orders/form/OrderForm.tsx`, `app/(dashboard)/orders/form/OrderDesignFields.tsx`
+
+**Root cause:** Confirmed by reading React 19's own source (`node_modules/react-dom/cjs/react-dom-client.development.js`) — `<form action={fn}>` calls `requestFormReset()` **unconditionally, before the action even runs**, every time the form is submitted (Enter key *or* button click), regardless of success or validation failure. This resets every **uncontrolled** field (`defaultValue` only, no `value`+`onChange`) back to its original value. The Customer select, Status select, and the Estimated Delivery/Assigned To/Custom Design Text/Design Notes/Custom Logo URL fields in `OrderDesignFields.tsx` were all still uncontrolled — so every submit attempt (intentional or an accidental Enter-triggered one) silently wiped them back to how the form first loaded. Item-row fields (Product, Design, Quantity, Discount) and the shipping-address fields were already fully controlled (bound to `itemRows`/`shipping` React state), which is why Quantity "stayed" while other fields reset.
+
+**Fix:**
+1. Converted Customer, Status, and all five `OrderDesignFields` inputs to controlled state (`customerId`, `status`, and a new `designFields` object), matching the pattern already used for `itemRows`/`shipping`.
+2. Added an `onKeyDown` handler on the `<form>` that blocks Enter from submitting (except inside a `<textarea>`, where it should insert a newline) — Enter was triggering a submit attempt before the user finished editing other fields, which is what surfaced this bug in the first place.
+
+## Bug 14 — 100% discount silently fails to save an order ✅ 2026-07-30
+
+Discount field works fine below 100% but breaks at exactly 100%.
+
+**Files:** `app/(dashboard)/orders/actions.ts`, `zod-schema/order.ts`
+
+**Root cause:** Not a math bug — `computeTotal()` (`orders/actions.ts:19`) correctly computes `price * quantity * (1 - discount / 100)`, so a 100% discount correctly totals to `0`. But `insertOrderSchema`'s `totalPrice` validator required `parseFloat(val) > 0` (strictly greater than zero), so a fully-discounted order was always rejected. Worse, `OrderForm.tsx` never rendered a `FieldError` for `totalPrice` (it's not a field the user fills in directly), so the rejection was completely silent — the form just appeared to do nothing.
+
+**Fix:** Changed the validator to `>= 0` (`"Total price must be zero or greater"`), allowing legitimate $0.00 orders (e.g. fully comped/discounted) to save.
