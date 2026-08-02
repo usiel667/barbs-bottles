@@ -95,15 +95,23 @@ export default async function CustomersPage() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
                           <Mail className="h-3.5 w-3.5 text-gray-400" />
-                          <a href={`mailto:${customer.email}`} className="hover:text-blue-600 hover:underline">
-                            {customer.email}
-                          </a>
+                          {customer.email ? (
+                            <a href={`mailto:${customer.email}`} className="hover:text-blue-600 hover:underline">
+                              {customer.email}
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 italic">No email</span>
+                          )}
                         </div>
                         <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
                           <Phone className="h-3.5 w-3.5 text-gray-400" />
-                          <a href={`tel:${customer.phone}`} className="hover:underline">
-                            {customer.phone}
-                          </a>
+                          {customer.phone ? (
+                            <a href={`tel:${customer.phone}`} className="hover:underline">
+                              {customer.phone}
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 italic">No phone</span>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -181,11 +189,19 @@ export default async function CustomersPage() {
                 <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
                   <div className="flex items-center gap-1.5">
                     <Mail className="h-3.5 w-3.5 text-gray-400" />
-                    <a href={`mailto:${customer.email}`} className="hover:underline">{customer.email}</a>
+                    {customer.email ? (
+                      <a href={`mailto:${customer.email}`} className="hover:underline">{customer.email}</a>
+                    ) : (
+                      <span className="text-gray-400 italic">No email</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Phone className="h-3.5 w-3.5 text-gray-400" />
-                    <a href={`tel:${customer.phone}`} className="hover:underline">{customer.phone}</a>
+                    {customer.phone ? (
+                      <a href={`tel:${customer.phone}`} className="hover:underline">{customer.phone}</a>
+                    ) : (
+                      <span className="text-gray-400 italic">No phone</span>
+                    )}
                   </div>
                   <div className="flex items-start gap-1.5">
                     <MapPin className="h-3.5 w-3.5 text-gray-400 mt-0.5" />

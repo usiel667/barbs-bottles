@@ -1,5 +1,7 @@
 # Orders Pages — Step-by-Step Coding Guide
 
+> **Update (2026-07-29):** This guide predates the multi-item orders change (see [[multi-item-orders-implementation]] — `orders.quantity`/`selectedColor`/`productId` shown below now live on `order_items` instead) and the later products schema change (`products.size` no longer exists — it's `bottleSizes.code` via a join to the new `bottle_sizes` lookup table now). Kept for historical reference; see `markdown files/debugging/Products_Data_Model.md` for the current model.
+
 Follows the same structure as the Customer and Product guides. Orders are more complex because they have **foreign keys** to both customers and products, the color dropdown is dynamic (driven by whichever product is selected), and the list page requires database joins to show readable names.
 
 **Files you will create/edit (in order):**
@@ -20,9 +22,11 @@ Follows the same structure as the Customer and Product guides. Orders are more c
 - [x] `page.tsx` — list with `innerJoin` for customer and product names ✅ 2026-05-11
 - [x] Update `Home.md` mermaid diagram to add orders routes ✅ 2026-05-11
 - [x] Update `APP_REFERENCE.md` — add order server actions, pages, and the fixed schemas ✅ 2026-05-11
-- [ ] Test: create an order, verify customer/product/color all save correctly
-- [ ] Test: change status, verify badge updates on list page
-- [ ] Test: edit an order, verify all fields pre-populate correctly
+- [x] Test: create an order, verify customer/product/color all save correctly ✅ 2026-05-29
+- [x] Test: change status, verify badge updates on list page ✅ 2026-05-29
+- [x] Test: edit an order, verify all fields pre-populate correctly ✅ 2026-05-29
+
+> **Note:** This guide covers the original single-item-per-order implementation. The codebase has since been upgraded to support multiple items per order. See [[multi-item-orders-implementation]] for the current architecture — it supersedes Steps 1–5 here.
 
 ---
 ## Architecture Schematic

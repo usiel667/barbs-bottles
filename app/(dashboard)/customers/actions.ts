@@ -16,8 +16,8 @@ function parseFormData(formData: FormData) {
   return {
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
-    email: formData.get("email"),
-    phone: formData.get("phone"),
+    email: formData.get("email") || undefined,
+    phone: formData.get("phone") || undefined,
     address1: formData.get("address1"),
     address2: formData.get("address2") || undefined,
     city: formData.get("city"),
