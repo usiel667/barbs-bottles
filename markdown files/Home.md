@@ -143,6 +143,8 @@ PR and code reviews.
 - [[PR1_Customer_Pages_Review]] — Review of Copilot PR #1 (customers list and form pages)
 - [[App_Audit_2026-05-05]] — Security & correctness audit of products and customers actions (2026-05-05)
 - [[security-review-2026-05-12]] — Full codebase security review: hardcoded credentials and IDOR on update actions (2026-05-12)
+- [[fallow-audit-2026-06-06]] — Fallow audit of `orders-page-revamp` branch: complexity, duplication, dead code (2026-06-06)
+- [[fallow-audit-2026-08-02]] — Full-repo fallow analyze: 1 unused file, 22 unused exports/types, 8 unused deps, 0 structural issues (2026-08-02)
 
 ---
 
