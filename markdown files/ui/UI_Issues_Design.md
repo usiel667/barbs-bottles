@@ -44,8 +44,13 @@ A running log of visual issues spotted in the app and design changes to make or 
 5. `ProductForm.tsx` — add number input (min 0)
 6. `products/page.tsx` — add Stock column to table and mobile card
 
-
 ## Resolved
+
+### ✅ [Orders Form] — Shipping address field *(2026-07-30)*
+Added `orders.shippingAddress1/2/city/state/zipCode` (migration `0006_order_shipping_address_fields.sql`, replacing an initial single-textarea version from `0005` — that column was dropped, unused). Renders in `OrderDesignFields.tsx` below Estimated Delivery using the **exact same layout and classes as the customer edit form's Address section** (Address Line 1/2, then City/State/Zip Code in a 3-col grid, `StatesArray` dropdown), auto-filled from the selected customer's address on the Customer dropdown's `onChange` and fully editable afterward. Required fields (Address 1/City/State/Zip) match the customer form's validation. Existing orders were backfilled from their customer's address at migration time.
+
+### ✅ [Orders Form] — Discount field per order item *(2026-07-30)*
+`order_items.discount` already existed but had no input — `OrderItemRow.tsx` hardcoded it to `"0"` in a hidden field. Replaced with a visible "Discount %" number input (0–100) underneath Design/Quantity, wired through `ItemRow`/`ExistingItem` in `OrderForm.tsx`. Added a 0–100 range validator to `insertOrderItemSchema` (`zod-schema/order.ts`).
 
 ### ✅ [Products Form] — Active toggle always saved as inactive *(2026-05-06)*
 Changed `formData.get("active") === "true"` to `formData.getAll("active").includes("true")` in `products/actions.ts:28`.
@@ -55,6 +60,10 @@ Fixed all 4 button instances on `products/page.tsx` to use `bg-blue-600 hover:bg
 
 ### ✅ [Products Page] — Add Product button text black → white *(2026-05-06)*
 Added `text-white` to both Add Product buttons (top header + empty state) on `products/page.tsx`.
+
+
+
+
 
 ---
 

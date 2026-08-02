@@ -94,11 +94,11 @@ export function CustomerForm({ customer }: Props) {
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email <span className="text-red-500">*</span>
+                  Email
                 </label>
                 <input
                   id="email" name="email" type="email"
-                  defaultValue={customer?.email}
+                  defaultValue={customer?.email ?? ""}
                   className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="jane@example.com"
                 />
@@ -107,11 +107,11 @@ export function CustomerForm({ customer }: Props) {
 
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Phone <span className="text-red-500">*</span>
+                  Phone
                 </label>
                 <input
                   id="phone" name="phone" type="tel"
-                  defaultValue={customer?.phone}
+                  defaultValue={customer?.phone ?? ""}
                   className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="+15551234567"
                 />

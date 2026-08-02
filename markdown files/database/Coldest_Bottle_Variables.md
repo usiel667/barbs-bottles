@@ -7,6 +7,8 @@
 
 ## Current Schema vs Coldest Reality
 
+> **Update (2026-07-29):** `bottleSizeEnum` no longer exists — it's been replaced by a `bottle_sizes` lookup table (`db/schema.ts`), and `products.series` is now a FK to a `product_series` lookup table too, both seeded with the values below. New sizes/series can now be added from the Add Product page without a migration. See `markdown files/debugging/Products_Data_Model.md`.
+
 ### `bottleSizeEnum` — Needs Update
 
 **Current (incorrect):**
@@ -120,14 +122,14 @@ Different products come with different lid combinations:
 
 ### 7. Physical Attributes
 
-| Attribute | Notes |
-|---|---|
-| Has Handle | Limitless = Yes, Universal = No, Sports = No |
-| Non-slip Rubber Bottom | Yes (all models) |
-| Dimensions | 36oz Limitless: H-12.12" × W-2.6" |
-| Cirkul Compatible | Yes (wide mouth models: 14oz, 18oz, 24oz, 32oz, 40oz, 64oz, Universal, Limitless) |
-| Paracord Handle | Optional add-on ($12-$15) |
-| Attachable Minis | Yes (Limitless) |
+| Attribute              | Notes                                                                             |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| Has Handle             | Limitless = Yes, Universal = No, Sports = No                                      |
+| Non-slip Rubber Bottom | Yes (all models)                                                                  |
+| Dimensions             | 36oz Limitless: H-12.12" × W-2.6"                                                 |
+| Cirkul Compatible      | Yes (wide mouth models: 14oz, 18oz, 24oz, 32oz, 40oz, 64oz, Universal, Limitless) |
+| Paracord Handle        | Optional add-on ($12-$15)                                                         |
+| Attachable Minis       | Yes (Limitless)                                                                   |
 
 ### 8. Coating Type & Care
 

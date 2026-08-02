@@ -8,9 +8,9 @@ export const insertCustomerSchema = createInsertSchema(customers, {
   address1: (schema) => schema.min(1, "Address is required"),
   city: (schema) => schema.min(1, "City is required"),
   state: (schema) => schema.min(2, "State must be 2 characters").max(2, "State must be 2 characters"),
-  email: (schema) => schema.email("Invalid email address"),
+  email: (schema) => schema.email("Invalid email address").optional(),
   zipCode: (schema) => schema.regex(/^\d{5}(-\d{4})?$/, "Invalid zip code format"),
-  phone: (schema) => schema.regex(/^(\+?[1-9]\d{1,14}|\d{3}-\d{3}-\d{4})$/, "Invalid phone number format"),
+  phone: (schema) => schema.regex(/^(\+?[1-9]\d{1,14}|\d{3}-\d{3}-\d{4})$/, "Invalid phone number format").optional(),
 
 });
 
