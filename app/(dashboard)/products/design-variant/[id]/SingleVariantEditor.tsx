@@ -147,10 +147,11 @@ export function SingleVariantEditor({ variant, productNames, designNames }: Prop
           </select>
           <FieldError errors={state?.errors?.designName} />
         </div>
-
-        <p className="text-xs text-gray-500 dark:text-gray-400 -mb-2">
-          The fields below apply to every design on this product ({variant.series} · {variant.size}), not just {variant.designName}.
-        </p>
+        <div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 -mb-2">
+            The fields below apply to every design on this product ({variant.series} · {variant.size}), not just {variant.designName}.
+          </p>
+        </div>
 
         {/* Cold + Hot Retention */}
         <div className="grid grid-cols-2 gap-4">
@@ -292,7 +293,7 @@ export function SingleVariantEditor({ variant, productNames, designNames }: Prop
             variant="outline"
             disabled={isRemoving}
             onClick={handleRemove}
-            className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950"
+            className="text-white bg-black border-red-600 hover:bg-red-500"
           >
             {isRemoving ? "Removing..." : "Remove"}
           </Button>

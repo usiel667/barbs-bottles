@@ -62,9 +62,6 @@ export default async function ProductsPage() {
           <p className="text-gray-600 dark:text-gray-300">
             {designGroups.length} design{designGroups.length !== 1 ? "s" : ""} · {seriesCount} series · {totalInStock} in stock
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Row Edit = price/stock across all series for a design · variant Edit = one design&apos;s fields · &quot;Manage Designs&quot; = add/remove designs on a series+size
-          </p>
         </div>
         <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
           <Link href="/products/form">+ Add Product</Link>
