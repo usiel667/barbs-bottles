@@ -3,6 +3,7 @@
 import { HomeIcon, Package, Users, ShoppingCart, LogOut, Droplets } from "lucide-react";
 import Link from "next/link";
 import { NavButton } from "@/components/NavButton";
+import { SearchBar } from "@/components/SearchBar";
 import { ModeToggle } from "@/components/ModeToggle";
 import { Button } from "@/components/ui/button";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
@@ -35,6 +36,9 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2">
+            <div className="hidden md:block">
+              <SearchBar />
+            </div>
             <ModeToggle />
             <LogoutLink>
               <Button

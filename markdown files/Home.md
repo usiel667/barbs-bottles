@@ -28,6 +28,7 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Add shipping address + per-item discount fields to the order form — see [[UI_Issues_Design]] ✅ 2026-07-30
 - [x] Fix Edit Order form fields resetting on Enter/Update (React 19 auto-resets uncontrolled fields on every form submit) — see [[Bug_Fixes]] ✅ 2026-07-30
 - [x] Fix 100% discount silently failing to save an order — `totalPrice` validator required `> 0`, rejecting legitimate $0.00 orders with no visible error — see [[Bug_Fixes]] ✅ 2026-07-30
+- [x] Add global search bar to header — searches Customers/Products/Orders via debounced server action, live grouped dropdown with keyboard nav — see [[In_Progress_Features]], `openspec/changes/global-search-bar` ✅ 2026-08-24
 ### Before Production
 - [ ] Lower `tracesSampleRate` from `1` to `0.1` in all three Sentry config files — see [[Sentry_Setup]]
 - [ ] Review `sendDefaultPii: true` for GDPR compliance — see [[Sentry_Setup]]
@@ -134,6 +135,14 @@ Reference docs for tools and services wired into the project.
 Visual bugs spotted in the app and design changes to make or remove.
 
 - [[UI_Issues_Design]] — Running log of UI issues and design changes (add/remove/restyle)
+- [[New_Pages]] — Planning notes for new pages to add to the app
+
+---
+
+## Features
+Features currently being planned, built, or recently shipped.
+
+- [[In_Progress_Features]] — Global search bar and other in-progress feature specs
 
 ---
 
