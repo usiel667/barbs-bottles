@@ -29,6 +29,9 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix Edit Order form fields resetting on Enter/Update (React 19 auto-resets uncontrolled fields on every form submit) — see [[Bug_Fixes]] ✅ 2026-07-30
 - [x] Fix 100% discount silently failing to save an order — `totalPrice` validator required `> 0`, rejecting legitimate $0.00 orders with no visible error — see [[Bug_Fixes]] ✅ 2026-07-30
 - [x] Add global search bar to header — searches Customers/Products/Orders via debounced server action, live grouped dropdown with keyboard nav — see [[In_Progress_Features]], `openspec/changes/global-search-bar` ✅ 2026-08-24
+- [x] Add individual customer detail page — read-only `/customers/[id]` mirroring the edit form, Edit button, and an Orders card (past + current orders); split into `CustomerDetailsCard`/`CustomerOrdersCard` after fallow flagged complexity; order-status badge styles moved to `constants/orderStatus.ts` — see [[New_Pages]], [[fallow-audit-2026-09-26]], `openspec/changes/customer-detail-page` ✅ 2026-09-26
+- [ ] Verify customer detail page on mobile width, empty-state Add Order, and the refactored components after re-login — see [[New_Pages]]
+- [ ] Add address maps — Phase 1: expandable map beside the address on the customer detail page (State/Zip stacked left); Phase 2: delivery-location map on orders; Phase 3: package-in-transit tracking. Decisions confirmed 2026-09-26 (single-column address, large overlay expand, Google Maps Embed); building customers only for now, OpenSpec next; Phase 3 ties to `markdown/future-features/shipping-integration.md` — see [[In_Progress_Features]]
 ### Before Production
 - [ ] Lower `tracesSampleRate` from `1` to `0.1` in all three Sentry config files — see [[Sentry_Setup]]
 - [ ] Review `sendDefaultPii: true` for GDPR compliance — see [[Sentry_Setup]]
@@ -57,6 +60,7 @@ flowchart TD
         HOME["/home\nhome/page.tsx"]
         CUSTOMERS["/customers\ncustomers/page.tsx"]
         CUST_FORM["/customers/form\nform/page.tsx + CustomerForm.tsx"]
+        CUST_DETAIL["/customers/[id]\n[id]/page.tsx + CustomerDetailsCard + CustomerOrdersCard"]
         PRODUCTS["/products\nproducts/page.tsx"]
         PROD_FORM["/products/form\nform/page.tsx + ProductForm.tsx"]
         PROD_BULK["/products/design/[name]\nBulkDesignEditor.tsx"]
@@ -65,6 +69,10 @@ flowchart TD
         ORD_FORM["/orders/form\nform/page.tsx + OrderForm.tsx"]
     end
 
+    CUSTOMERS -->|click name| CUST_DETAIL
+    CUST_DETAIL -->|Edit button| CUST_FORM
+    CUST_DETAIL -->|order row| ORD_FORM
+    CUST_DETAIL -->|getCustomerById, getCustomerOrders| DB
     CUSTOMERS -->|?id param| CUST_FORM
     CUST_FORM -->|createCustomer / updateCustomer| CUST_ACTIONS["customers/actions.ts"]
     CUST_ACTIONS -->|insert / update| DB["Neon\nPostgres Database"]
@@ -135,14 +143,14 @@ Reference docs for tools and services wired into the project.
 Visual bugs spotted in the app and design changes to make or remove.
 
 - [[UI_Issues_Design]] — Running log of UI issues and design changes (add/remove/restyle)
-- [[New_Pages]] — Planning notes for new pages to add to the app
+- [[New_Pages]] — Planning notes for new pages; currently the customer detail page (built, awaiting merge)
 
 ---
 
 ## Features
 Features currently being planned, built, or recently shipped.
 
-- [[In_Progress_Features]] — Global search bar and other in-progress feature specs
+- [[In_Progress_Features]] — Global search bar (built) and address maps (planned) feature specs
 
 ---
 
@@ -154,6 +162,7 @@ PR and code reviews.
 - [[security-review-2026-05-12]] — Full codebase security review: hardcoded credentials and IDOR on update actions (2026-05-12)
 - [[fallow-audit-2026-06-06]] — Fallow audit of `orders-page-revamp` branch: complexity, duplication, dead code (2026-06-06)
 - [[fallow-audit-2026-08-02]] — Full-repo fallow analyze: 1 unused file, 22 unused exports/types, 8 unused deps, 0 structural issues (2026-08-02)
+- [[fallow-audit-2026-09-26]] — Audit of `customer-detail-page`: failed on CRAP complexity, fixed by splitting into components, now passes with 0 new findings (2026-09-26)
 
 ---
 
