@@ -36,7 +36,7 @@ Features currently being planned or built.
 
 ### Address Maps (customer page → orders → package tracking)
 
-**Status:** Planning — spec drafted and decisions confirmed 2026-09-26. **Scope for now is Phase 1 only (customer page).** Next step: create the OpenSpec change. Not started.
+**Status:** Planning — spec drafted and decisions confirmed 2026-09-26. **Scope for now is Phase 1 only (customer page).** OpenSpec change created 2026-09-26: `openspec/changes/customer-address-map` (proposal, design, 2 specs, tasks — validated). Not built yet.
 
 **Big picture:** Show addresses on a map across the app. Rather than three unrelated features, build **one reusable `AddressMap` component** and use it in three phases. Phase 1 is the first thing to build; Phases 2 and 3 are recorded here so the component is designed for them, but are separate changes.
 
@@ -60,7 +60,7 @@ Features currently being planned or built.
 **Behavior:**
 - Map centers on and marks the customer's address (Address 1 + Address 2 + City + State + Zip).
 - **Expandable:** an expand control on the map opens the map in a **large overlay** (modal) over the page; a close control, Escape, or clicking outside returns to the normal layout. The overlay can use the native `<dialog>` element, so no new dependency is needed. *(Confirmed 2026-09-26.)*
-- Address that can't be located → the map area shows a small "Location not found" message instead of a broken map; the address fields are unaffected.
+- If the API key isn't configured, the map area shows a "Map unavailable" placeholder and the rest of the page is unaffected. (The map is a cross-origin iframe, so the app can't tell whether Google located the address — if Google can't find it, Google's own message shows inside the frame. Address completeness isn't a case: address 1, city, state, and zip are required by the schema.)
 - Read-only; no map on the edit form in Phase 1.
 
 **Keep in mind (from the fallow audit):** every function must stay under cyclomatic complexity 5 (repo has no tests, so fallow's CRAP score fails anything higher). Keep `AddressMap` and the section components small — split rather than branch.
@@ -77,7 +77,7 @@ Features currently being planned or built.
 
 **Data / schema:** none required for the Embed option. Mapbox/Leaflet would add `latitude`/`longitude` (geocoded on save) to `customers` and to `orders` (for shipping address), which is a migration and a change to the create/update actions.
 
-**Privacy / security:** the customer's address is sent to the map provider to render the map. Restrict the API key by HTTP referrer, load it from an env var (e.g. `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY`), and note it alongside the existing production-readiness items (Sentry PII review) in [[Home]].
+**Privacy / security:** the customer's address is sent to the map provider to render the map. Restrict the API key by HTTP referrer, load it from a server-side env var, `GOOGLE_MAPS_EMBED_KEY` (the URL is built on the server and passed to the client component), and note it alongside the existing production-readiness items (Sentry PII review) in [[Home]].
 
 #### Phase 2 — Orders map (planned, not spec'd yet)
 - Map of an order's delivery location using the order's own `shipping*` fields (can differ from the customer's address); shown for past/delivered orders too.
@@ -96,5 +96,5 @@ Features currently being planned or built.
 5. **Carriers / tracking** — deferred; see Phase 3 and `markdown/future-features/shipping-integration.md`.
 
 **Still to decide during the OpenSpec design:**
-- Whether every customer gets a map or only ones with a complete address (default: always attempt, fall back to "Location not found").
-- Exact map height and expanded-overlay size.
+- ~~Whether every customer gets a map~~ — resolved: yes, always (the schema guarantees a complete address).
+- Exact map height, zoom, and expanded-overlay size — starting values are in the OpenSpec design; adjust after seeing it.
