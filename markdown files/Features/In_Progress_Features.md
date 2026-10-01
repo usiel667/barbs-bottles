@@ -36,7 +36,7 @@ Features currently being planned or built.
 
 ### Address Maps (customer page → orders → package tracking)
 
-**Status:** Planning — spec drafted and decisions confirmed 2026-09-26. **Scope for now is Phase 1 only (customer page).** OpenSpec change created 2026-09-26: `openspec/changes/customer-address-map` (proposal, design, 2 specs, tasks — validated). Not built yet.
+**Status:** ✅ Phase 1 built and manually verified 2026-09-27 on branch `customer-detail-page` (`openspec/changes/customer-address-map`). Not yet committed/merged. `tsc`, `eslint`, and the fallow audit all pass with 0 new findings.
 
 **Big picture:** Show addresses on a map across the app. Rather than three unrelated features, build **one reusable `AddressMap` component** and use it in three phases. Phase 1 is the first thing to build; Phases 2 and 3 are recorded here so the component is designed for them, but are separate changes.
 
@@ -48,20 +48,24 @@ Features currently being planned or built.
 
 **Standalone vs. integrated — recommendation:** integrate Phases 1 and 2 through the shared component (same props, same expand behavior, only the address source differs). Keep Phase 3 standalone: it needs external carrier data (the `orders.trackingNumber` column exists, but nothing turns a tracking number into locations) and likely a different kind of map (route/markers), so it should get its own spec once a carrier API is chosen.
 
-#### Phase 1 — Customer address map (first build)
+#### Phase 1 — Customer address map ✅ built 2026-09-27
 
-**Location:** `app/(dashboard)/customers/[id]/CustomerDetailsCard.tsx`, in `AddressSection`. New component `components/AddressMap.tsx` (reusable; takes address fields, not a customer).
+**Location:** `app/(dashboard)/customers/[id]/CustomerDetailsCard.tsx`, in `AddressSection`. Built as `components/AddressMap.tsx` (reusable client component; takes `{ embedUrl, address }`, not a customer) plus `lib/maps.ts` (`formatAddress`, `getMapEmbedUrl` — server-side, reads `GOOGLE_MAPS_EMBED_KEY`).
 
-**Layout (desktop, `md+`):** the Address section becomes two columns.
-- **Left column:** everything stacked in a single column, top to bottom: Address Line 1, Address Line 2 (when present), City, State, Zip Code (they currently sit in a 3-across row for City/State/Zip). *(Confirmed 2026-09-26.)*
-- **Right column:** the map, sized to the height of the left column.
-- **Mobile (`< md`):** map stacks below the address fields at a fixed height.
+**Layout (desktop, `md+`):** the Address section is a two-column grid.
+- **Left column:** the "Address" `<h2>` heading followed by `AddressFields` (Address Line 1, Address Line 2 when present, City, State, Zip Code, all stacked in one column — they used to sit in a 3-across row for City/State/Zip). The heading sits *inside* the grid's left cell (not above the grid) so its top edge sets the row's top.
+- **Right column:** `AddressMap`, matching the left column's height exactly via CSS grid stretch — verified with actual bounding rects that the map's top edge equals the heading's top edge, and the map's bottom edge equals the fields' bottom edge (height 224px, both columns identical top and bottom) after two fixes (see Bugs fixed below).
+- **Mobile (`< md`):** map stacks below the address fields at a fixed height (`h-64`).
 
-**Behavior:**
-- Map centers on and marks the customer's address (Address 1 + Address 2 + City + State + Zip).
-- **Expandable:** an expand control on the map opens the map in a **large overlay** (modal) over the page; a close control, Escape, or clicking outside returns to the normal layout. The overlay can use the native `<dialog>` element, so no new dependency is needed. *(Confirmed 2026-09-26.)*
-- If the API key isn't configured, the map area shows a "Map unavailable" placeholder and the rest of the page is unaffected. (The map is a cross-origin iframe, so the app can't tell whether Google located the address — if Google can't find it, Google's own message shows inside the frame. Address completeness isn't a case: address 1, city, state, and zip are required by the schema.)
+**Behavior — all manually verified with a real Google Maps Embed key:**
+- Map centers on and marks the customer's address (Address 1 + City + State + Zip — Address 2 is left out of the map query, see design.md).
+- **Expandable:** an expand button (top-right of the inline map) opens the map in a large overlay (native `<dialog>`, `showModal()`), rendered at `w-[90vw] max-w-5xl h-[80vh]`. Verified: close button, Escape, and clicking the dimmed backdrop all close it; clicking inside the map does not. The overlay's own iframe only mounts while open (confirmed via iframe count: 1 normally, 2 while the overlay is open) and is removed on close. Escape-close correctly returns focus to the expand button (real click only — a JS-synthesized `.click()` does not focus the element first, so that path didn't return focus in an early test; this is expected browser behavior, not a bug).
+- If `GOOGLE_MAPS_EMBED_KEY` isn't set, the map area shows a "Map unavailable" placeholder with no expand button, and the rest of the page is unaffected — verified.
 - Read-only; no map on the edit form in Phase 1.
+
+**Bugs fixed during build:**
+1. **Map not flush with the fields at both ends.** `AddressMap`'s wrapper had `md:min-h-64` (256px minimum), taller than the address fields' actual content (224px). Since a CSS grid row stretches to its tallest item, that forced the whole row to 256px: the map (which has a visible border) filled that completely, while the fields column — top-aligned via `content-start` — left 32px of invisible blank space below "Zip Code". It looked like the map didn't line up with the fields at the top. Fix: removed `md:min-h-64` from both the map and the "Map unavailable" placeholder, letting the row height come from the fields' real content; confirmed via `getBoundingClientRect()` that both columns were then exactly 224px with identical top and bottom edges.
+2. **Map top didn't align with the top of the "Address" heading.** The `<h2>` sat above the two-column grid, so the grid (and therefore the map) started below it, at the top of the fields — not at the top of the heading. Fix: moved the heading inside the grid's left cell, above `AddressFields`, so the grid row (and the map that stretches to fill it) now starts at the heading's top. Confirmed via `getBoundingClientRect()`: heading top, map top, and fields-column top are all the same pixel value.
 
 **Keep in mind (from the fallow audit):** every function must stay under cyclomatic complexity 5 (repo has no tests, so fallow's CRAP score fails anything higher). Keep `AddressMap` and the section components small — split rather than branch.
 
@@ -95,6 +99,10 @@ Features currently being planned or built.
 4. **Scope** — customers only for now; Phases 2 and 3 are not part of the first OpenSpec change.
 5. **Carriers / tracking** — deferred; see Phase 3 and `markdown/future-features/shipping-integration.md`.
 
-**Still to decide during the OpenSpec design:**
+**Still to decide:**
 - ~~Whether every customer gets a map~~ — resolved: yes, always (the schema guarantees a complete address).
-- Exact map height, zoom, and expanded-overlay size — starting values are in the OpenSpec design; adjust after seeing it.
+- ~~Exact map height, zoom, and expanded-overlay size~~ — built with the design.md starting values (zoom 15, `h-64` inline/mobile, `w-[90vw] max-w-5xl h-[80vh]` overlay); no complaints after seeing it, but easy to adjust.
+
+**Not yet verified:**
+- A customer with an Address Line 2 (none of the four seeded customers has one — the field is coded to hide when empty and to be excluded from the map query, but untested against real data).
+- Mobile-width layout (`< md`) — the Chrome window couldn't be resized to test this in either the customer-detail-page or address-map work.

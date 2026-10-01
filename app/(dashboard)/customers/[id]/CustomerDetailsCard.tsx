@@ -2,7 +2,9 @@ import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AddressMap } from "@/components/AddressMap";
 import { StatesArray } from "@/constants/StatesArray";
+import { formatAddress, getMapEmbedUrl } from "@/lib/maps";
 import type { SelectCustomerType } from "@/zod-schema/customer";
 
 const SECTION_DIVIDER = "border-t-2 border-gray-300 dark:border-gray-600 pt-8";
@@ -71,19 +73,29 @@ function PersonalInfoSection({ customer }: { customer: SelectCustomerType }) {
   );
 }
 
-function AddressSection({ customer }: { customer: SelectCustomerType }) {
+function AddressFields({ customer }: { customer: SelectCustomerType }) {
   const stateName = StatesArray.find((s) => s.id === customer.state)?.description ?? customer.state;
   return (
+    <div className="grid content-start gap-4">
+      <Field label="Address Line 1">{customer.address1}</Field>
+      {customer.address2 && <Field label="Address Line 2">{customer.address2}</Field>}
+      <Field label="City">{customer.city}</Field>
+      <Field label="State">{stateName}</Field>
+      <Field label="Zip Code">{customer.zipCode}</Field>
+    </div>
+  );
+}
+
+function AddressSection({ customer }: { customer: SelectCustomerType }) {
+  const address = formatAddress(customer);
+  return (
     <div className={SECTION_DIVIDER}>
-      <h2 className={SECTION_HEADING}>Address</h2>
-      <div className="grid gap-4">
-        <Field label="Address Line 1">{customer.address1}</Field>
-        {customer.address2 && <Field label="Address Line 2">{customer.address2}</Field>}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Field label="City">{customer.city}</Field>
-          <Field label="State">{stateName}</Field>
-          <Field label="Zip Code">{customer.zipCode}</Field>
+      <div className="grid gap-6 md:grid-cols-2">
+        <div>
+          <h2 className={SECTION_HEADING}>Address</h2>
+          <AddressFields customer={customer} />
         </div>
+        <AddressMap embedUrl={getMapEmbedUrl(address)} address={address} />
       </div>
     </div>
   );

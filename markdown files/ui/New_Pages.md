@@ -6,9 +6,9 @@ Planning notes for new pages to add to the app.
 
 ## Planned
 
-### Customer Page (individual customer detail) ✅ 2026-09-26
+### Customer Page (individual customer detail) ✅ 2026-09-27
 
-**Status:** Implemented on branch `customer-detail-page` (`openspec/changes/customer-detail-page`). Not yet committed/merged. 24 of 26 OpenSpec tasks done — see "Not yet verified" below.
+**Status:** Implemented and committed on branch `customer-detail-page` (`openspec/changes/customer-detail-page`, commits `1f77c2e` and `ca55817`). Not yet merged. Now also has an address map on the Address section — see [[In_Progress_Features]].
 
 **Purpose:** Each customer gets a dedicated read-only page, reached by clicking that customer's name on the Customers list. It looks like the Edit Customer page, but with an **Edit** button where "Save Changes" sits, and an **Orders** card at the bottom listing the customer's past and current orders.
 
@@ -35,15 +35,14 @@ Planning notes for new pages to add to the app.
 2. Orders card is order-level summary only — no expandable line items in v1.
 3. The global search bar's Customer results still link to `/customers/form?id=`; switching them to `/customers/{id}` is a one-line change in `lib/queries/search.ts`, left as a follow-up.
 
-**Verified in the browser (desktop, real data):** name click → detail page; fields, placeholders, status badge; Edit → `/customers/form?id=`; `/customers/form` unaffected; orders with 0, 1, and 2 orders (newest first, correct counts/totals/badges/dash for missing delivery); full-row click opens the order; 404s; Orders list badges unchanged after the constants move; divider styling.
+**Verified in the browser (desktop, real data, including after the split into `CustomerDetailsCard`/`CustomerOrdersCard`):** name click → detail page; fields, placeholders, status badge; Edit → `/customers/form?id=`; `/customers/form` unaffected; orders with 0, 1, and 2 orders (newest first, correct counts/totals/badges/dash for missing delivery); empty state renders for a customer with 0 orders; full-row click opens the order; 404s for `99999` and `abc`; Orders list badges unchanged after the constants move; divider styling; the address map (see [[In_Progress_Features]] for map-specific verification).
 
 **Not yet verified:**
-- Mobile-width layout (name link, stacked order cards) — Chrome window couldn't be resized; the mobile links are present in the DOM and correct.
-- Empty-state **Add Order** click, and an order with zero line items (none exists in the data).
-- The refactored (split) components in the browser — the Kinde session in Chrome expired before the re-check. `tsc`, `eslint`, and the fallow audit are clean.
+- Mobile-width layout (name link, stacked order cards, stacked map) — the Chrome window couldn't be resized to test this.
+- Clicking the empty-state **Add Order** button, and an order with zero line items (none exists in the data).
 - A customer with an address line 2 (none of the four customers has one).
 
-**Planned change — address map:** the Address section will be reworked so a map of the customer's address sits to the right of the address fields, with State and Zip Code moving left and stacked one on top of the other, and the map expandable. Full spec, phases (customer page → orders → package tracking), map-provider options and open questions are in [[In_Progress_Features]] under "Address Maps". Not started; OpenSpec change to follow after review.
+**Address map — done:** the Address section now shows a Google-Maps-Embed map to the right of the address fields (City/State/Zip stacked in one column on the left), expandable to a large overlay. Full build notes, the layout bug found and fixed, and what's still unverified are in [[In_Progress_Features]] under "Address Maps → Phase 1".
 
 **Follow-ups noticed:**
 - `lib/utils.ts` already exports `formatDate` and `formatPrice` (unused, flagged in [[fallow-audit-2026-08-02]]); `CustomerOrdersCard.tsx` defines its own equivalents. Consider reusing the shared ones.

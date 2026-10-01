@@ -30,13 +30,15 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix 100% discount silently failing to save an order — `totalPrice` validator required `> 0`, rejecting legitimate $0.00 orders with no visible error — see [[Bug_Fixes]] ✅ 2026-07-30
 - [x] Add global search bar to header — searches Customers/Products/Orders via debounced server action, live grouped dropdown with keyboard nav — see [[In_Progress_Features]], `openspec/changes/global-search-bar` ✅ 2026-08-24
 - [x] Add individual customer detail page — read-only `/customers/[id]` mirroring the edit form, Edit button, and an Orders card (past + current orders); split into `CustomerDetailsCard`/`CustomerOrdersCard` after fallow flagged complexity; order-status badge styles moved to `constants/orderStatus.ts` — see [[New_Pages]], [[fallow-audit-2026-09-26]], `openspec/changes/customer-detail-page` ✅ 2026-09-26
-- [ ] Verify customer detail page on mobile width, empty-state Add Order, and the refactored components after re-login — see [[New_Pages]]
-- [ ] Add address maps — Phase 1: expandable map beside the address on the customer detail page (State/Zip stacked left); Phase 2: delivery-location map on orders; Phase 3: package-in-transit tracking. Decisions confirmed 2026-09-26 (single-column address, large overlay expand, Google Maps Embed); building customers only for now, OpenSpec next; Phase 3 ties to `markdown/future-features/shipping-integration.md` — see [[In_Progress_Features]]
+- [x] Add expandable Google Maps address map to the customer detail page (Phase 1 of Address Maps) — City/State/Zip stacked left, map right via CSS grid; fixed two alignment bugs (a `min-h-64` that left the map taller than the address fields, and the map top not lining up with the "Address" heading); overlay (native `<dialog>`) verified: close button, Escape, backdrop click all close it, click-inside doesn't, only one iframe loads until expanded — see [[In_Progress_Features]], `openspec/changes/customer-address-map` ✅ 2026-09-30
+- [ ] Verify customer detail page + address map on mobile width, an address with Address Line 2, and clicking the empty-state Add Order button — see [[New_Pages]], [[In_Progress_Features]]
+- [ ] Add Phase 2 (order delivery-location map) and Phase 3 (package-in-transit tracking, ties to `markdown/future-features/shipping-integration.md`) of Address Maps — not started, not spec'd — see [[In_Progress_Features]]
 ### Before Production
 - [ ] Lower `tracesSampleRate` from `1` to `0.1` in all three Sentry config files — see [[Sentry_Setup]]
 - [ ] Review `sendDefaultPii: true` for GDPR compliance — see [[Sentry_Setup]]
 - [ ] Move Sentry DSN to `NEXT_PUBLIC_SENTRY_DSN` environment variable — see [[Sentry_Setup]]
 - [ ] Look into dotenvx precommit to prevent committing `.env` files — see [[DataBase_Debug]]
+- [ ] Add `GOOGLE_MAPS_EMBED_KEY` to Vercel's environment variables and restrict the key to the production domain (HTTP referrers) before deploying — the customer's address is sent to Google to render the map, so review this alongside the Sentry PII item above — see [[In_Progress_Features]]
 
 ### Obsidian Setup
 - [ ] Install Dataview plugin — auto-generate live TODO lists from all notes
@@ -150,7 +152,7 @@ Visual bugs spotted in the app and design changes to make or remove.
 ## Features
 Features currently being planned, built, or recently shipped.
 
-- [[In_Progress_Features]] — Global search bar (built) and address maps (planned) feature specs
+- [[In_Progress_Features]] — Global search bar (built) and address maps (Phase 1 built, Phases 2–3 planned) feature specs
 
 ---
 
