@@ -73,12 +73,12 @@ export default async function CustomersPage() {
 
                     {/* Name + initials avatar */}
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
+                      <Link href={`/customers/${customer.id}`} className="flex items-center gap-3 group">
                         <div className="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold text-sm shrink-0">
                           {customer.firstName[0] ?? ""}{customer.lastName[0] ?? ""}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-white">
+                          <p className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 group-hover:underline">
                             {customer.firstName} {customer.lastName}
                           </p>
                           {customer.notes && (
@@ -87,7 +87,7 @@ export default async function CustomersPage() {
                             </p>
                           )}
                         </div>
-                      </div>
+                      </Link>
                     </td>
 
                     {/* Contact */}
@@ -165,12 +165,12 @@ export default async function CustomersPage() {
             {allCustomers.map((customer) => (
               <div key={customer.id} className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <Link href={`/customers/${customer.id}`} className="flex items-center gap-3 group">
                     <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold">
                       {customer.firstName[0] ?? ""}{customer.lastName[0] ?? ""}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">
+                      <p className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 group-hover:underline">
                         {customer.firstName} {customer.lastName}
                       </p>
                       <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${customer.active
@@ -180,7 +180,7 @@ export default async function CustomersPage() {
                         {customer.active ? "Active" : "Inactive"}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                   <Button asChild variant="ghost" size="sm">
                     <Link href={`/customers/form?id=${customer.id}`}>Edit</Link>
                   </Button>

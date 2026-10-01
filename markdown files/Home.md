@@ -29,11 +29,17 @@ A central index for all project documentation. Click any link to open the note d
 - [x] Fix Edit Order form fields resetting on Enter/Update (React 19 auto-resets uncontrolled fields on every form submit) — see [[Bug_Fixes]] ✅ 2026-07-30
 - [x] Fix 100% discount silently failing to save an order — `totalPrice` validator required `> 0`, rejecting legitimate $0.00 orders with no visible error — see [[Bug_Fixes]] ✅ 2026-07-30
 - [x] Add global search bar to header — searches Customers/Products/Orders via debounced server action, live grouped dropdown with keyboard nav — see [[In_Progress_Features]], `openspec/changes/global-search-bar` ✅ 2026-08-24
+- [x] Add individual customer detail page — read-only `/customers/[id]` mirroring the edit form, Edit button, and an Orders card (past + current orders); split into `CustomerDetailsCard`/`CustomerOrdersCard` after fallow flagged complexity; order-status badge styles moved to `constants/orderStatus.ts` — see [[New_Pages]], [[fallow-audit-2026-09-26]], `openspec/changes/customer-detail-page` ✅ 2026-09-26
+- [x] Add expandable Google Maps address map to the customer detail page (Phase 1 of Address Maps) — City/State/Zip stacked left, map right via CSS grid; fixed two alignment bugs (a `min-h-64` that left the map taller than the address fields, and the map top not lining up with the "Address" heading); overlay (native `<dialog>`) verified: close button, Escape, backdrop click all close it, click-inside doesn't, only one iframe loads until expanded — see [[In_Progress_Features]], `openspec/changes/customer-address-map` ✅ 2026-09-30
+- [x] Verify customer detail page + address map on a tablet — tested on a real iPad over a Cloudflare quick tunnel; side-by-side layout confirmed correct for `md`+ widths (tablets included) — see [[In_Progress_Features]] ✅ 2026-10-01
+- [ ] Verify an address with Address Line 2, and clicking the empty-state Add Order button; add `GOOGLE_MAPS_EMBED_KEY` to Vercel — see [[New_Pages]], [[In_Progress_Features]]
+- [ ] Add Phase 2 (order delivery-location map) and Phase 3 (package-in-transit tracking, ties to `markdown/future-features/shipping-integration.md`) of Address Maps — not started, not spec'd — see [[In_Progress_Features]]
 ### Before Production
 - [ ] Lower `tracesSampleRate` from `1` to `0.1` in all three Sentry config files — see [[Sentry_Setup]]
 - [ ] Review `sendDefaultPii: true` for GDPR compliance — see [[Sentry_Setup]]
 - [ ] Move Sentry DSN to `NEXT_PUBLIC_SENTRY_DSN` environment variable — see [[Sentry_Setup]]
 - [ ] Look into dotenvx precommit to prevent committing `.env` files — see [[DataBase_Debug]]
+- [ ] Add `GOOGLE_MAPS_EMBED_KEY` to Vercel's environment variables and restrict the key to the production domain (HTTP referrers) before deploying — the customer's address is sent to Google to render the map, so review this alongside the Sentry PII item above — see [[In_Progress_Features]]
 
 ### Obsidian Setup
 - [ ] Install Dataview plugin — auto-generate live TODO lists from all notes
@@ -57,6 +63,7 @@ flowchart TD
         HOME["/home\nhome/page.tsx"]
         CUSTOMERS["/customers\ncustomers/page.tsx"]
         CUST_FORM["/customers/form\nform/page.tsx + CustomerForm.tsx"]
+        CUST_DETAIL["/customers/[id]\n[id]/page.tsx + CustomerDetailsCard + CustomerOrdersCard"]
         PRODUCTS["/products\nproducts/page.tsx"]
         PROD_FORM["/products/form\nform/page.tsx + ProductForm.tsx"]
         PROD_BULK["/products/design/[name]\nBulkDesignEditor.tsx"]
@@ -65,6 +72,10 @@ flowchart TD
         ORD_FORM["/orders/form\nform/page.tsx + OrderForm.tsx"]
     end
 
+    CUSTOMERS -->|click name| CUST_DETAIL
+    CUST_DETAIL -->|Edit button| CUST_FORM
+    CUST_DETAIL -->|order row| ORD_FORM
+    CUST_DETAIL -->|getCustomerById, getCustomerOrders| DB
     CUSTOMERS -->|?id param| CUST_FORM
     CUST_FORM -->|createCustomer / updateCustomer| CUST_ACTIONS["customers/actions.ts"]
     CUST_ACTIONS -->|insert / update| DB["Neon\nPostgres Database"]
@@ -135,14 +146,14 @@ Reference docs for tools and services wired into the project.
 Visual bugs spotted in the app and design changes to make or remove.
 
 - [[UI_Issues_Design]] — Running log of UI issues and design changes (add/remove/restyle)
-- [[New_Pages]] — Planning notes for new pages to add to the app
+- [[New_Pages]] — Planning notes for new pages; currently the customer detail page (built, awaiting merge)
 
 ---
 
 ## Features
 Features currently being planned, built, or recently shipped.
 
-- [[In_Progress_Features]] — Global search bar and other in-progress feature specs
+- [[In_Progress_Features]] — Global search bar (built) and address maps (Phase 1 built, Phases 2–3 planned) feature specs
 
 ---
 
@@ -154,6 +165,7 @@ PR and code reviews.
 - [[security-review-2026-05-12]] — Full codebase security review: hardcoded credentials and IDOR on update actions (2026-05-12)
 - [[fallow-audit-2026-06-06]] — Fallow audit of `orders-page-revamp` branch: complexity, duplication, dead code (2026-06-06)
 - [[fallow-audit-2026-08-02]] — Full-repo fallow analyze: 1 unused file, 22 unused exports/types, 8 unused deps, 0 structural issues (2026-08-02)
+- [[fallow-audit-2026-09-26]] — Audit of `customer-detail-page`: failed on CRAP complexity, fixed by splitting into components, now passes with 0 new findings (2026-09-26)
 
 ---
 
