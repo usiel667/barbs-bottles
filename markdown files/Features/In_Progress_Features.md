@@ -103,6 +103,8 @@ Features currently being planned or built.
 - ~~Whether every customer gets a map~~ — resolved: yes, always (the schema guarantees a complete address).
 - ~~Exact map height, zoom, and expanded-overlay size~~ — built with the design.md starting values (zoom 15, `h-64` inline/mobile, `w-[90vw] max-w-5xl h-[80vh]` overlay); no complaints after seeing it, but easy to adjust.
 
+**Mobile/tablet verified 2026-10-01:** tested on a real iPad over a temporary Cloudflare quick tunnel (`cloudflared tunnel --url http://localhost:3000`, required temporarily pointing `KINDE_SITE_URL`/`KINDE_POST_LOGIN_REDIRECT_URL`/`KINDE_POST_LOGOUT_REDIRECT_URL` at the tunnel URL and adding it to Kinde's allowed callback/logout URLs — reverted after testing). The iPad showed the map beside the fields, not below — expected, since iPad width (≥768px) is at/above the `md` breakpoint and gets the same side-by-side layout as desktop, matching the rest of the app's responsive convention. Page scroll and the Orders card both looked correct. User accepted this as sufficient; the `< md` stacked case (actual phone width) remains code-correct but visually unconfirmed.
+
 **Not yet verified:**
 - A customer with an Address Line 2 (none of the four seeded customers has one — the field is coded to hide when empty and to be excluded from the map query, but untested against real data).
-- Mobile-width layout (`< md`) — the Chrome window couldn't be resized to test this in either the customer-detail-page or address-map work.
+- `GOOGLE_MAPS_EMBED_KEY` in Vercel's environment variables — not yet added (local `.env.local` only).

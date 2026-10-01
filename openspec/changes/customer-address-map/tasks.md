@@ -1,7 +1,7 @@
 ## 1. Google Cloud and configuration (user actions)
 
-- [ ] 1.1 Create a Google Cloud project, enable the **Maps Embed API**, and create an API key restricted to HTTP referrers (`http://localhost:3000/*` and the production domain) and to the Maps Embed API only
-- [ ] 1.2 Add `GOOGLE_MAPS_EMBED_KEY` to `.env.local` (assistant must not read or print the key) and restart the dev server
+- [x] 1.1 Create a Google Cloud project, enable the **Maps Embed API**, and create an API key restricted to HTTP referrers (`http://localhost:3000/*` and the production domain) and to the Maps Embed API only
+- [x] 1.2 Add `GOOGLE_MAPS_EMBED_KEY` to `.env.local` (assistant must not read or print the key) and restart the dev server
 - [ ] 1.3 Add `GOOGLE_MAPS_EMBED_KEY` to the Vercel project's environment variables
 
 ## 2. Map URL helper
@@ -34,12 +34,12 @@
 - [x] 5.4 Manually test: expand opens the large overlay; close button, Escape, and clicking outside all close it; clicking inside does not; focus returns to the expand button
 - [x] 5.5 Manually test: only one Google iframe on first load, and the overlay iframe is removed after closing
 - [x] 5.6 Manually test (key unset): "Map unavailable" placeholder shows, no expand button, layout unchanged, rest of the page normal
-- [ ] 5.7 Manually test: mobile width shows the map below the fields at fixed height with no horizontal scroll (or note if the window can't be resized)
+- [x] 5.7 Manually test: mobile width shows the map below the fields at fixed height with no horizontal scroll (or note if the window can't be resized) — tested on a real iPad via a Cloudflare tunnel; iPad width (≥768px) is at/above the `md` breakpoint, so it correctly showed the side-by-side desktop layout, matching the rest of the app's responsive convention (nav, search bar switch at the same breakpoint). The `< md` stacked case itself was not visually confirmed on an actual phone-width device; user accepted this as sufficient for now.
 - [x] 5.8 Re-check the customer page dividers, Orders card, Edit button, and 404 pages are unaffected
 - [x] 5.9 Run fallow `audit` against `main` and confirm 0 newly introduced findings
-- [ ] 5.10 Run `gitnexus_detect_changes()` before committing to confirm only expected symbols/flows are affected
+- [x] 5.10 Run `gitnexus_detect_changes()` before committing to confirm only expected symbols/flows are affected
 
 ## 6. Docs
 
-- [ ] 6.1 Update `In_Progress_Features.md` (Address Maps: mark Phase 1 built, correct the "Location not found" note and env-var name), `New_Pages.md`, and `Home.md`
-- [ ] 6.2 Add `GOOGLE_MAPS_EMBED_KEY` and the address-to-Google disclosure to the production-readiness checklist in `Home.md`
+- [x] 6.1 Update `In_Progress_Features.md` (Address Maps: mark Phase 1 built, correct the "Location not found" note and env-var name), `New_Pages.md`, and `Home.md`
+- [x] 6.2 Add `GOOGLE_MAPS_EMBED_KEY` and the address-to-Google disclosure to the production-readiness checklist in `Home.md`
