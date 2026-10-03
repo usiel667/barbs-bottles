@@ -279,9 +279,9 @@ Drizzle config: `drizzle.config.ts` — schema: `./db/schema.ts`, output: `./db/
 
 > `proxy.ts`
 
-Auth provided by **Kinde** (`@kinde-oss/kinde-auth-nextjs`). The middleware wraps `withAuth()` with `isReturnToCurrentPage: true`.
+Auth provided by **Kinde** (`@kinde-oss/kinde-auth-nextjs`). `proxy.ts` is the Next.js 16 name for middleware; it runs on the Node.js runtime and wraps `withAuth()` with `isReturnToCurrentPage: true`. It only became active with the Next 16 upgrade (Next 15 ignored `proxy.ts`). The build output lists it as `ƒ Proxy (Middleware)`. It's an extra layer: `app/(dashboard)/layout.tsx` and every server action still check `getUser()` themselves.
 
-**Matcher excludes:** `api/*`, `_next/static/*`, `_next/image/*`, `favicon.ico`, `robots.txt`, `/images/*`, `/login`, `/` (root)
+**Matcher excludes:** `api/*`, `_next/static/*`, `_next/image/*`, `favicon.ico`, `robots.txt`, `/images/*`, `/login`, `/monitoring` (Sentry tunnel route from `next.config.ts`; it must stay public or client error reports from logged-out pages are lost), `/` (root)
 
 Auth route: `app/api/auth/[kindeAuth]/route.ts`
 
