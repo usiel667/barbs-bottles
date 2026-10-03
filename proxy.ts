@@ -1,11 +1,8 @@
 import { withAuth } from "@kinde-oss/kinde-auth-nextjs/middleware";
-import { NextRequest } from "next/server";
 
 export default withAuth(
-  async function proxy(request: NextRequest) {
-    //additional prox logic if needed
-    console.log("Proxy running for:", request.nextUrl.pathname);
-
+  async function proxy() {
+    // withAuth handles the session check and login redirect.
   },
   {
     isReturnToCurrentPage: true,
@@ -14,8 +11,8 @@ export default withAuth(
 
 export const config = {
   matcher: [
-
-    "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|images|login|$).*)",
-
+    // Public: api (incl. Kinde /api/auth), static assets, images, login,
+    // Sentry's /monitoring tunnel, and the root "/" (the `$` alternative).
+    "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|images|login|monitoring|$).*)",
   ],
 };

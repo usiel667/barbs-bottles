@@ -35,6 +35,9 @@ A central index for all project documentation. Click any link to open the note d
 - [ ] Verify an address with Address Line 2, and clicking the empty-state Add Order button; add `GOOGLE_MAPS_EMBED_KEY` to Vercel — see [[New_Pages]], [[In_Progress_Features]]
 - [ ] Add Phase 2 (order delivery-location map) and Phase 3 (package-in-transit tracking, ties to `markdown/future-features/shipping-integration.md`) of Address Maps — not started, not spec'd — see [[In_Progress_Features]]
 ### Before Production
+- [ ] Work through the full launch checklist (domain, Neon prod branch, Vercel, Kinde, Sentry, Maps) — see [[Production_Launch_Guide]]
+- [ ] Upgrade to Next.js 16.3.8 (security + activates `proxy.ts` auth middleware). Implemented and verified on branch `upgrade-nextjs-16`; order/product saves verified; awaiting merge. See [[Production_Launch_Guide]], `openspec/changes/upgrade-nextjs-16`
+- [ ] Disable Kinde self-sign-up and invite staff only — any logged-in Kinde user currently has full access — see [[Production_Launch_Guide]]
 - [ ] Lower `tracesSampleRate` from `1` to `0.1` in all three Sentry config files — see [[Sentry_Setup]]
 - [ ] Review `sendDefaultPii: true` for GDPR compliance — see [[Sentry_Setup]]
 - [ ] Move Sentry DSN to `NEXT_PUBLIC_SENTRY_DSN` environment variable — see [[Sentry_Setup]]
